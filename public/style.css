@@ -12,6 +12,10 @@ body {
 	display: none;
 }
 
+.full-width {
+	grid-column: span 2;
+}
+
 /* Dark Mode styles */
 body.dark-mode {
 	background-color: #121212;
@@ -310,6 +314,7 @@ nav a.active {
 	background-color: #2ecc71;
 	color: #fff;
 	border-radius: 5px;
+	border: none;
 	text-align: center;
 	text-decoration: none;
 	transition: background-color 0.2s ease;
@@ -395,6 +400,7 @@ button:disabled:hover {
 
 /* Progress Bar */
 .progress-bar {
+	display: none;
 	position: relative;
 	height: 20px;
 	border: 1px solid #ccc;
@@ -408,20 +414,20 @@ button:disabled:hover {
 	background-color: #0078d4;
 }
 
-p#progress-helper-text {
+p#progress-helper-text,
+p#random-text,
+p#last-updated {
 	text-align: center;
 }
 
 /* Table Styles */
 .table-wrapper {
-	width: 100%;
 	overflow-x: auto;
-	grid-template-columns: 1fr;
 }
 
 table {
-	width: 100%;
 	border-collapse: collapse;
+	width: 100%;
 }
 
 th,
@@ -432,20 +438,27 @@ td {
 }
 
 th {
-	background-color: #f3f3f3;
+	background-color: #e5e5e5;
 	font-weight: bold;
 }
 
 /* Light Mode styles */
+body.light-mode table {
+	border: 1px solid #ccc;
+}
 body.light-mode tr:nth-child(even) {
-	background-color: #f2f2f2;
+	background-color: #e5e5e5;
 }
 
 /* Dark Mode styles */
+body.dark-mode table {
+	border: 1px solid #444;
+}
 body.dark-mode th {
 	background-color: #333;
 }
 
+body.dark-mode th,
 body.dark-mode td {
 	border-bottom: 1px solid #444;
 }

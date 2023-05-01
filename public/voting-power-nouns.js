@@ -1,5 +1,6 @@
 /* Progress Bar */
 const socket = io();
+let loaderTextInterval;
 
 socket.on('progress', (progress) => {
   // Log received progress
@@ -32,18 +33,22 @@ const loaderTextOptions = [
   'Patience is the key',
 ];
 
-function updateLoaderText(loader) {
-  const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
-  const randomText = loaderTextOptions[randomIndex];
-  loader.innerHTML = `${randomText}`;
-}
-
 async function fetchData() {
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
 
+  // Add logs to check the received data and lastRun values
+  console.log('Received data:', data);
+  console.log('Received lastRun:', lastRun);
+
   // Update the table with the data
   refreshTableData(data);
+
+  // Wait for the DOM to update
+  setTimeout(() => {
+    // Sort the table by voting power descending
+    sortTable(1, 'voting-power-table');
+  }, 0);
 
   // Update the last updated text with the last run timestamp
   updateLastUpdatedText(lastRun);
@@ -52,9 +57,9 @@ async function fetchData() {
 function updateLastUpdatedText(timestamp) {
   const lastUpdatedElement = document.querySelector('#last-updated');
   if (timestamp) {
-    lastUpdatedElement.textContent = `Last updated: ${new Date(timestamp).toLocaleString()}`;
+    lastUpdatedElement.textContent = `Voting Power Last Updated: ${new Date(timestamp).toLocaleString()}`;
   } else {
-    lastUpdatedElement.textContent = 'Last updated: Unknown';
+    lastUpdatedElement.textContent = 'Voting Power Last Updated: Unknown';
   }
 }
 
@@ -80,18 +85,64 @@ async function refreshData() {
   setRefreshingDataState(false);
 }
 
+function refreshTableData(data) {
+  const tableBody = document.getElementById('voting-power-table-body');
+  tableBody.innerHTML = '';
+
+  data.forEach(({ address, votingPower }) => {
+    const row = document.createElement('tr');
+    const addressCell = document.createElement('td');
+    const votingPowerCell = document.createElement('td');
+
+    addressCell.textContent = address;
+    votingPowerCell.textContent = votingPower;
+
+    row.appendChild(addressCell);
+    row.appendChild(votingPowerCell);
+    tableBody.appendChild(row);
+  });
+}
+
+function startLoaderTextCycle() {
+  const randomTextElement = document.getElementById('random-text');
+  updateLoaderText(randomTextElement);
+  loaderTextInterval = setInterval(() => {
+    updateLoaderText(randomTextElement);
+  }, 3000);
+}
+
+function stopLoaderTextCycle() {
+  clearInterval(loaderTextInterval);
+}
+
+function updateLoaderTextVisibility(isRefreshing) {
+  const randomTextElement = document.getElementById('random-text');
+  if (isRefreshing) {
+    randomTextElement.style.display = 'block';
+  } else {
+    randomTextElement.style.display = 'none';
+  }
+}
+
 function setRefreshingDataState(isRefreshing) {
   const refreshDataButton = document.getElementById('refresh-data-button');
   const progressHelperText = document.getElementById('progress-helper-text');
+  const progressBar = document.getElementById('progress-bar');
+  const randomTextElement = document.getElementById('random-text');
 
   if (isRefreshing) {
     refreshDataButton.setAttribute('disabled', 'disabled');
     progressHelperText.style.display = 'block';
     progressBar.style.display = 'block';
+    updateLoaderText(randomTextElement);
+    randomTextElement.style.display = 'block';
+    startLoaderTextCycle(); // Add this line
   } else {
     refreshDataButton.removeAttribute('disabled');
     progressHelperText.style.display = 'none';
-    progressBar.style.display = 'block';
+    progressBar.style.display = 'none';
+    randomTextElement.style.display = 'none';
+    stopLoaderTextCycle(); // Add this line
   }
 }
 
@@ -105,6 +156,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const isRefreshing = await getRefreshStatus();
   setRefreshingDataState(isRefreshing);
+  updateLoaderTextVisibility(isRefreshing);
+
+  document.getElementById('header-address').addEventListener('click', () => sortTable(0, 'voting-power-table'));
+  document.getElementById('header-voting-power').addEventListener('click', () => sortTable(1, 'voting-power-table'));
 });
 
 async function getRefreshStatus() {
@@ -113,49 +168,64 @@ async function getRefreshStatus() {
   return isRefreshing;
 }
 
-function sortTable(n, tableId) {
-  const table = document.getElementById(tableId);
-  let switching = true;
-  let switchcount = 0;
-  let shouldSwitch;
-  let i;
-  let x;
-  let y;
-  let dir = "desc";
+// Store the sorting state
+const sortingState = {
+  columnIndex: 1,
+  direction: 'desc',
+};
 
-  while (switching) {
-    switching = false;
-    const rows = table.rows;
-    for (i = 1; i < rows.length - 1; i++) {
-      shouldSwitch = false;
-      x = rows[i].getElementsByTagName("TD")[n];
-      y = rows[i + 1].getElementsByTagName("TD")[n];
-      if (dir == "desc") {
-        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-          shouldSwitch = true;
-          break;
-        }
-      } else if (dir == "asc") {
-        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-          shouldSwitch = true;
-          break;
-        }
-      }
-    }
-    if (shouldSwitch) {
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      switchcount++;
-    } else {
-      if (switchcount == 0 && dir == "desc") {
-        dir = "asc";
-        switching = true;
-      }
-    }
+function sortTable(columnIndex, tableId) {
+  const table = document.getElementById(tableId);
+  const isNumeric = columnIndex === 1; // Voting power is numeric
+  const prevColumnIndex = sortingState.columnIndex;
+
+  if (prevColumnIndex === columnIndex) {
+    // Reverse the sorting direction if the column is the same as the previously sorted one
+    sortingState.direction = sortingState.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Set the direction to descending if the column has changed
+    sortingState.direction = 'desc';
   }
+
+  sortingState.columnIndex = columnIndex;
+
+  const compareFunction = isNumeric
+    ? (a, b) => parseFloat(b) - parseFloat(a)
+    : (a, b) => a.localeCompare(b);
+
+  const tableRows = Array.from(table.rows).slice(1); // Exclude the header row
+  const sortedRows = tableRows.sort((rowA, rowB) => {
+    const cellA = rowA.cells[columnIndex].textContent.trim();
+    const cellB = rowB.cells[columnIndex].textContent.trim();
+
+    return compareFunction(cellA, cellB);
+  });
+
+  if (sortingState.direction === 'desc') {
+    sortedRows.reverse();
+  }
+
+  const tableBody = table.querySelector('tbody');
+  tableBody.innerHTML = '';
+  sortedRows.forEach(row => tableBody.appendChild(row));
 }
 
-// TODO make sure loading/progress text always and only shows during the processing in the background regardless of how it was triggered or page reload.
-// Make sure data is being processed once per day automatically and added to the database.
-// TODO fix table layout.
-// TODO clean up progress bar styles.
+document.getElementById('download-csv-button').addEventListener('click', async () => {
+  const response = await fetch('/api/voting-power-data');
+  const { data, lastRun } = await response.json();
+
+  console.log('Data used for CSV:', data);
+
+  // Convert the data to CSV format
+  const csvData = data.map(({ address, votingPower }) => `${address},${votingPower}`).join('\n');
+  const csv = `Address,Voting Power\n${csvData}`;
+
+  // Create a temporary anchor element to trigger the download
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = 'nouns-voting-power.csv';
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
