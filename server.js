@@ -8,6 +8,7 @@ const Web3 = require('web3');
 const fs = require('fs');
 const path = require('path');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,21 @@ server.listen(port, () => {
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
+
+const uri = process.env.MONGODB_CONNECTION_STRING;
+
+async function connectToDB() {
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  try {
+    await client.connect();
+    const db = client.db('nftcsvtools');
+    return db;
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    return null;
+  }
+}
 
 async function fetchMintedTokenIdsByDateRange(contractAddress, tokenDateStart, tokenDateEnd, apiKey, ownerType) {
   const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${contractAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
@@ -245,6 +261,49 @@ app.post('/export-nfts', async (req, res) => {
 /**
  * Nouns Voting Power
  */
+async function getVotingPowerDataFromDB() {
+  const db = await connectToDB();
+  if (!db) {
+    console.error("Couldn't connect to the database");
+    return;
+  }
+
+  const votingPowerCollection = db.collection('voting_power');
+  const data = await votingPowerCollection.find({}).toArray();
+
+  const metadataCollection = db.collection('metadata');
+  const lastRunResult = await metadataCollection.findOne({ key: 'last_run_timestamp' });
+  const lastRun = lastRunResult ? lastRunResult.value : null;
+
+  return { data, lastRun };
+}
+
+async function saveVotingPowerData(votingPowerData) {
+  const db = await connectToDB();
+  if (!db) {
+    console.error("Couldn't connect to the database");
+    return;
+  }
+
+  const votingPowerCollection = db.collection('voting_power');
+
+  // Remove all the previous data
+  await votingPowerCollection.deleteMany({});
+
+  // Save the new data
+  await votingPowerCollection.insertMany(votingPowerData);
+
+  // Update the last run timestamp
+  const metadataCollection = db.collection('metadata');
+  await metadataCollection.updateOne(
+    { key: 'last_run_timestamp' },
+    { $set: { value: new Date() } },
+    { upsert: true }
+  );
+
+  console.log('Voting power data saved to MongoDB');
+}
+
 let isRefreshingData = false;
 
 const fetchVotingPowerData = async (io) => {
@@ -300,6 +359,9 @@ const fetchVotingPowerData = async (io) => {
       votingPower
     }));
 
+    // Save the voting power data to the MongoDB collection
+    await saveVotingPowerData(votingPowerData);
+
     isRefreshingData = false;
     return votingPowerData;
   } catch (error) {
@@ -334,4 +396,18 @@ app.get('/api/voting-power/download', async (req, res) => {
 
 app.get('/api/voting-power/refresh-status', (req, res) => {
   res.json({ isRefreshing: isRefreshingData });
+});
+
+app.get('/api/voting-power-data', async (req, res) => {
+  const { data, lastRun } = await getVotingPowerDataFromDB();
+  res.json({ data, lastRun });
+});
+
+app.post('/api/voting-power/refresh', async (req, res) => {
+  if (isRefreshingData) {
+    return res.status(409).json({ message: 'Data is already being refreshed.' });
+  }
+
+  fetchedData = await fetchVotingPowerData(io);
+  res.json({ message: 'Data refreshed successfully.' });
 });

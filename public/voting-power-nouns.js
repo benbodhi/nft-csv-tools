@@ -19,33 +19,42 @@ socket.on('refreshingDataStatus', (isRefreshing) => {
 
 const progressBar = document.getElementById('progress');
 
-const refreshData = async () => {
+async function fetchData() {
+  const response = await fetch('/api/voting-power-data');
+  const { data, lastRun } = await response.json();
+
+  // Update the table with the data
+  refreshTableData(data);
+
+  // Update the last updated text with the last run timestamp
+  updateLastUpdatedText(lastRun);
+}
+
+function updateLastUpdatedText(timestamp) {
+  const lastUpdatedElement = document.querySelector('#last-updated');
+  if (timestamp) {
+    lastUpdatedElement.textContent = `Last updated: ${new Date(timestamp).toLocaleString()}`;
+  } else {
+    lastUpdatedElement.textContent = 'Last updated: Unknown';
+  }
+}
+
+async function refreshData() {
   setRefreshingDataState(true);
 
   try {
-    const response = await fetch('/api/voting-power');
-    const data = await response.json();
+    await fetch('/api/voting-power/refresh', {
+      method: 'POST',
+    });
 
-    const tableBody = document.getElementById('voting-power-table').getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = '';
+    await fetchData();
 
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      const row = tableBody.insertRow();
-      row.insertCell().textContent = item.address;
-      row.insertCell().textContent = item.votingPower;
-    }
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error refreshing data:', error);
   }
 
-  progressBar.style.display = 'none';
-  setRefreshingDataState(false); // Add this line
-
-  // Update the last updated time/date
-  const lastUpdated = document.getElementById('last-updated');
-  lastUpdated.textContent = `Last Updated: ${new Date().toLocaleString()}`; // Add this line
-};
+  setRefreshingDataState(false);
+}
 
 function setRefreshingDataState(isRefreshing) {
   const refreshDataButton = document.getElementById('refresh-data-button');
@@ -54,22 +63,21 @@ function setRefreshingDataState(isRefreshing) {
   if (isRefreshing) {
     refreshDataButton.setAttribute('disabled', 'disabled');
     progressHelperText.style.display = 'block';
-    progressBar.style.display = 'block'; // Add this line
+    progressBar.style.display = 'block';
   } else {
     refreshDataButton.removeAttribute('disabled');
     progressHelperText.style.display = 'none';
-    progressBar.style.display = 'none'; // Add this line
+    progressBar.style.display = 'none';
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => { // Add 'async' keyword
+document.addEventListener('DOMContentLoaded', async () => {
   const refreshDataButton = document.getElementById('refresh-data-button');
   if (refreshDataButton) {
     refreshDataButton.addEventListener('click', refreshData);
   }
 
-  // Add the following lines
-  const isRefreshing = await getRefreshStatus();
+  fetchData();
   setRefreshingDataState(isRefreshing);
 });
 
