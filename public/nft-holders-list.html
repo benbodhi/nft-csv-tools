@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>NFT CSV Tools</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+</head>
+
+<body>
+	<header class="header">
+		<div class="header__title">
+			<a href="index.html">NFT CSV Tools</a>
+		</div>
+		<div class="header__toggle">
+			<label for="toggle" class="toggle__label">
+				<img src="noggle-toggle-dark.svg" alt="Dark mode" class="toggle__icon toggle__icon--dark" />
+				<input type="checkbox" class="toggle__input" id="toggle" />
+				<span class="toggle__switch"></span>
+				<img src="noggle-toggle-light.svg" alt="Light mode" class="toggle__icon toggle__icon--light" />
+			</label>
+		</div>
+	</header>
+	<nav>
+		<a href="index.html">Home</a>
+		<a href="nft-holders-list.html" class="active">NFT Holders List</a>
+		<a href="nfts-in-wallet-list.html">NFTs in Wallet</a>
+		<a href="voting-power-nouns.html">Nouner Power</a>
+	</nav>
+	<div class="intro">
+		<p>This tool allows you to input a token contract address (Ethereum Network) and either specify or fetch token IDs to output lists of holders or original minters.<br>Handy for airdops, token gating or allowlisting for holders/minters of a specific token.</p>
+		<h3>Instructions</h3>
+		<ol>
+			<li>Paste the token contract address in the first field.</li>
+			<li>Use any one of the next 3 fields or the "fetch all" checkbox to specify the token IDs to get holder/minter addresses for.</li>
+			<li>Select whether you want the current token holder or the original minter address.</li>
+			<li>Press the "Fetch Token Holders" button and wait.</li>
+			<li>Download whichever CSVs you want when the buttons show up.</li>
+		</ol>
+		<p>Please note: only ERC-721 is supported for now</p>
+	</div>
+	<main class="main">
+		<form id="token-form" class="form">
+			<label for="contract-address" class="form__label">Contract Address:</label>
+			<div class="input-container">
+				<input type="text" id="contract-address" class="form__input" placeholder="0x..." required>
+				<span class="clear-icon" title="Clear input">x</span>
+			</div>
+			<p class="form__description">Enter the token contract address to pull owners from 👆</p>
+
+			<label for="token-ids" class="form__label">Token ID(s):</label>
+			<div class="input-container">
+				<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
+				<span class="clear-icon" title="Clear input">x</span>
+			</div>
+			<p class="form__description">Single token ID or comma-separated list</p>
+
+			<label for="token-range" class="form__label">Token ID Range:</label>
+			<div class="input-container">
+				<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
+				<span class="clear-icon" title="Clear input">x</span>
+			</div>
+			<p class="form__description">Two token IDs to get them and all between</p>
+
+			<label for="token-date-range" class="form__label">Date Range:</label>
+			<div class="input-container">
+				<input type="text" id="token-date-range" class="form__input" placeholder="2022-01-01 to 2022-01-31"
+					disabled>
+				<span class="clear-icon" title="Clear input">x</span>
+			</div>
+			<p class="form__description">Select from and to dates (UTC), can be same day (YYYY-MM-DD to YYYY-MM-DD)</p>
+
+			<label for="fetch-all">
+				<input type="checkbox" id="fetch-all" name="fetch-all" />
+				Fetch all owners/minters of tokens from this contract
+			</label>
+
+			<fieldset class="form__fieldset">
+				<legend class="form__legend">Get Wallet:</legend>
+				<input type="radio" id="owner-current" name="owner-type" value="current" checked>
+				<label for="owner-current">Current Owner</label>
+				<input type="radio" id="owner-original" name="owner-type" value="original">
+				<label for="owner-original">Original Minter</label>
+			</fieldset>
+			<button type="submit" id="submit-button" class="form__button button">Fetch Token Holders</button>
+		</form>
+		<div id="output" class="output">
+			<h2 class="output__title">CSV Downloads</h2>
+			<div class="output__buttons output__buttons--half">
+				<div class="button-container">
+					<a id="download-combined" class="output__link button hidden">Download Combined CSV</a>
+				</div>
+				<div class="button-container">
+					<a id="download-all" class="output__link button hidden" download="all_token_holders.zip">Download
+						All CSVs</a>
+				</div>
+			</div>
+			<div id="csv-links" class="output__links">
+				<!-- Download links will be generated here -->
+			</div>
+		</div>
+	</main>
+	<script src="noggle-toggle.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+	<script src="nft-holders-list.js"></script>
+</body>
+
+</html>

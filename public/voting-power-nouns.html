@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>NFT CSV Tools</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<header class="header">
+		<div class="header__title">
+			<a href="index.html">NFT CSV Tools</a>
+		</div>
+		<div class="header__toggle">
+			<label for="toggle" class="toggle__label">
+				<img src="noggle-toggle-dark.svg" alt="Dark mode" class="toggle__icon toggle__icon--dark" />
+				<input type="checkbox" class="toggle__input" id="toggle" />
+				<span class="toggle__switch"></span>
+				<img src="noggle-toggle-light.svg" alt="Light mode" class="toggle__icon toggle__icon--light" />
+			</label>
+		</div>
+	</header>
+	<nav>
+		<a href="index.html">Home</a>
+		<a href="nft-holders-list.html">NFT Holders List</a>
+		<a href="nfts-in-wallet-list.html">NFTs in Wallet</a>
+		<a href="voting-power-nouns.html" class="active">Nouner Power</a>
+	</nav>
+	<div class="intro">
+		<p>Export a list of wallets with voting power at Nouns DAO to a CSV file.</p>
+	</div>
+	<div class="progress-bar">
+		<div id="progress" class="progress-bar-inner" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+	</div>
+	<p id="progress-helper-text" class="text-muted" style="display: none;">Currently Refreshing Data</p>
+	<div id="last-updated"></div>
+	<main class="main">
+		<button id="refresh-data-button" class="button">Refresh Data</button>
+		<button id="download-csv-button" class="button" onclick="downloadCSV()">Download table as CSV</button>
+		<div class="table-wrapper">
+			<table id="voting-power-table">
+				<thead>
+					<tr>
+						<th onclick="sortTable(0, 'voting-power-table')">Wallet</th>
+						<th onclick="sortTable(1, 'voting-power-table')">Voting Power</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- The voting power data will be inserted here -->
+				</tbody>
+			</table>
+		</div>
+	</main>
+	<script src="noggle-toggle.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="voting-power-nouns.js"></script>
+</body>
+
+</html>
