@@ -416,6 +416,7 @@ p#progress-helper-text {
 .table-wrapper {
 	width: 100%;
 	overflow-x: auto;
+	grid-template-columns: 1fr;
 }
 
 table {

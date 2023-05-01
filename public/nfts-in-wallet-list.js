@@ -96,12 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
       nftLink.href = URL.createObjectURL(nftBlob);
       nftLink.download = `nfts_${walletAddress}.csv`;
       nftLink.textContent = `Download NFT CSV for ${walletAddress}`;
-      nftLink.classList.add('button'); // Add the button class
+      nftLink.classList.add('button');
 
       tokenReferenceLink.href = URL.createObjectURL(tokenReferenceBlob);
       tokenReferenceLink.download = `token_reference_${walletAddress}.csv`;
       tokenReferenceLink.textContent = `Download Token Reference CSV for ${walletAddress}`;
-      tokenReferenceLink.classList.add('button'); // Add the button class
+      tokenReferenceLink.classList.add('button');
 
       const div = document.createElement('div');
       div.appendChild(nftLink);
@@ -117,6 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     csvLinksContainer.style.display = 'block';
   }
-
 
 });

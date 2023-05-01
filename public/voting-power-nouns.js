@@ -19,6 +19,25 @@ socket.on('refreshingDataStatus', (isRefreshing) => {
 
 const progressBar = document.getElementById('progress');
 
+const loaderTextOptions = [
+  'Grabbing the goods',
+  'Won\'t be too long',
+  'Hang tight',
+  'Getting There',
+  'Time to count the hairs on your arm',
+  '⌐◨-◨',
+  'LFG',
+  '⌐🄶-🄼',
+  'gm',
+  'Patience is the key',
+];
+
+function updateLoaderText(loader) {
+  const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
+  const randomText = loaderTextOptions[randomIndex];
+  loader.innerHTML = `${randomText}`;
+}
+
 async function fetchData() {
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
@@ -43,12 +62,17 @@ async function refreshData() {
   setRefreshingDataState(true);
 
   try {
+    const randomTextElement = document.getElementById('random-text');
+    updateLoaderText(randomTextElement);
+    randomTextElement.style.display = 'block';
+
     await fetch('/api/voting-power/refresh', {
       method: 'POST',
     });
 
     await fetchData();
 
+    randomTextElement.style.display = 'none';
   } catch (error) {
     console.error('Error refreshing data:', error);
   }
@@ -67,7 +91,7 @@ function setRefreshingDataState(isRefreshing) {
   } else {
     refreshDataButton.removeAttribute('disabled');
     progressHelperText.style.display = 'none';
-    progressBar.style.display = 'none';
+    progressBar.style.display = 'block';
   }
 }
 
@@ -78,6 +102,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   fetchData();
+
+  const isRefreshing = await getRefreshStatus();
   setRefreshingDataState(isRefreshing);
 });
 
@@ -128,3 +154,8 @@ function sortTable(n, tableId) {
     }
   }
 }
+
+// TODO make sure loading/progress text always and only shows during the processing in the background regardless of how it was triggered or page reload.
+// Make sure data is being processed once per day automatically and added to the database.
+// TODO fix table layout.
+// TODO clean up progress bar styles.
