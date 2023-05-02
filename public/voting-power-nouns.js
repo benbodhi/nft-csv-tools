@@ -1,30 +1,45 @@
-/* Progress Bar */
+// Establish a connection to the server using the Socket.IO library
 const socket = io();
+
+// Initialize the loader text interval variable
 let loaderTextInterval;
 
+// Set up a socket event listener for 'progress' events
 socket.on('progress', (progress) => {
-  // Log received progress
+  // Log the progress received from the server
   console.log('Received progress:', progress);
 
+  // Get a reference to the progress bar element
   const progressBar = document.getElementById('progress');
+
+  // Update the width of the progress bar based on the received progress
   progressBar.style.width = `${progress}%`;
 
-  // Update percentage displayed below the progress bar
+  // Get a reference to the progress percentage element
   const progressPercentage = document.getElementById('progress-percentage');
+
+  // Update the percentage displayed below the progress bar with the received progress
   progressPercentage.textContent = `${progress.toFixed(0)}%`;
 });
 
+  // Set up a socket event listener for 'refreshingDataStatus' events
 socket.on('refreshingDataStatus', (isRefreshing) => {
+  // Log the received data refresh status
   console.log('Received data refresh status:', isRefreshing);
+
+  // Update the refreshing data state based on the received status
   setRefreshingDataState(isRefreshing);
 });
 
+// Listen for 'dataRefreshed' events and reload the page when data is refreshed
 socket.on('dataRefreshed', function() {
   location.reload();
 });
 
+// Get a reference to the progress bar element
 const progressBar = document.getElementById('progress');
 
+// Define an array of loader text options
 const loaderTextOptions = [
   'Grabbing the goods',
   'Won\'t be too long',
@@ -38,12 +53,15 @@ const loaderTextOptions = [
   'Patience is the key',
 ];
 
+// Define a function to update the loader text with a random option from the loaderTextOptions array
 function updateLoaderText(element) {
   const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
   element.textContent = loaderTextOptions[randomIndex];
 }
 
+// Define an asynchronous function to fetch data from the server
 async function fetchData() {
+  // Send a GET request to the server to fetch the voting power data
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
 
@@ -51,10 +69,10 @@ async function fetchData() {
   // console.log('Received data:', data);
   // console.log('Received lastRun:', lastRun);
 
-  // Update the table with the data
+  // Update the table with the fetched data
   refreshTableData(data);
 
-  // Wait for the DOM to update
+  // Wait for the DOM to update before sorting the table
   setTimeout(() => {
     // Sort the table by voting power descending
     sortTable(1, 'voting-power-table');
@@ -64,6 +82,7 @@ async function fetchData() {
   updateLastUpdatedText(lastRun);
 }
 
+// Define a function to update the last updated text with the last run timestamp
 function updateLastUpdatedText(timestamp) {
   const lastUpdatedElement = document.querySelector('#last-updated');
   if (timestamp) {
@@ -73,10 +92,13 @@ function updateLastUpdatedText(timestamp) {
   }
 }
 
+// Define an asynchronous function to refresh the voting power data
 async function refreshData() {
+  // Set the refreshing data state to true
   setRefreshingDataState(true);
 
   try {
+    // Update the loader text initially and start the interval
     const randomTextElement = document.getElementById('random-text');
     updateLoaderText(randomTextElement);
     randomTextElement.style.display = 'block';
@@ -95,6 +117,7 @@ async function refreshData() {
   setRefreshingDataState(false);
 }
 
+// Define a function to refresh the table with the new data
 function refreshTableData(data) {
   const tableBody = document.getElementById('voting-power-table-body');
   tableBody.innerHTML = '';
@@ -113,6 +136,7 @@ function refreshTableData(data) {
   });
 }
 
+// Define a function to start the loader text cycle and set the interval to repeat every 3 seconds
 function startLoaderTextCycle() {
   const randomTextElement = document.getElementById('random-text');
   updateLoaderText(randomTextElement);
@@ -121,10 +145,12 @@ function startLoaderTextCycle() {
   }, 3000);
 }
 
+// Define a function to stop the loader text cycle and clear the interval
 function stopLoaderTextCycle() {
   clearInterval(loaderTextInterval);
 }
 
+// Define a function to update the visibility of the loader text based on the refreshing data state
 function updateLoaderTextVisibility(isRefreshing) {
   const randomTextElement = document.getElementById('random-text');
   if (isRefreshing) {
@@ -134,6 +160,7 @@ function updateLoaderTextVisibility(isRefreshing) {
   }
 }
 
+// Define a function to set the refreshing data state and update the UI accordingly
 function setRefreshingDataState(isRefreshing) {
   const refreshDataButton = document.getElementById('refresh-data-button');
   const progressHelperText = document.getElementById('progress-helper-text');
@@ -156,22 +183,32 @@ function setRefreshingDataState(isRefreshing) {
   }
 }
 
+// When the DOM is fully loaded, set up event listeners and fetch initial data
 document.addEventListener('DOMContentLoaded', async () => {
+  // Get a reference to the refresh data button
   const refreshDataButton = document.getElementById('refresh-data-button');
+
+  // Add a click event listener to the refresh data button, if it exists
   if (refreshDataButton) {
     refreshDataButton.addEventListener('click', refreshData);
   }
 
+  // Fetch the initial voting power data
   fetchData();
 
+  // Get the initial refresh status from the server and set the refreshing data state accordingly
   const isRefreshing = await getRefreshStatus();
   setRefreshingDataState(isRefreshing);
+
+  // Update the loader text visibility based on the initial refresh status from the server
   updateLoaderTextVisibility(isRefreshing);
 
+  // Add event listeners to sort the table by address or voting power when the corresponding header is clicked
   document.getElementById('header-address').addEventListener('click', () => sortTable(0, 'voting-power-table'));
   document.getElementById('header-voting-power').addEventListener('click', () => sortTable(1, 'voting-power-table'));
 });
 
+// Fetch the current data refresh status from the server
 async function getRefreshStatus() {
   const response = await fetch('/api/voting-power/refresh-status');
   const { isRefreshing } = await response.json();
@@ -184,6 +221,7 @@ const sortingState = {
   direction: 'desc',
 };
 
+// Sort the table by the specified column index and update the sorting state
 function sortTable(columnIndex, tableId) {
   const table = document.getElementById(tableId);
   const isNumeric = columnIndex === 1; // Voting power is numeric
@@ -220,6 +258,7 @@ function sortTable(columnIndex, tableId) {
   sortedRows.forEach(row => tableBody.appendChild(row));
 }
 
+// Add event listener to the download CSV button to trigger the download of the voting power data in CSV format
 document.getElementById('download-csv-button').addEventListener('click', async () => {
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
