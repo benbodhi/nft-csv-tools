@@ -312,13 +312,14 @@ nav a.active {
 	display: block;
 	padding: 10px;
 	background-color: #2ecc71;
-	color: #fff;
+	color: #121212;
 	border-radius: 5px;
 	border: none;
 	text-align: center;
 	text-decoration: none;
 	transition: background-color 0.2s ease;
 	word-wrap: break-word;
+	font-size: 1em;
 }
 
 .button:hover {
