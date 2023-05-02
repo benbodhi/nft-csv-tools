@@ -67,9 +67,9 @@ async function fetchData() {
 function updateLastUpdatedText(timestamp) {
   const lastUpdatedElement = document.querySelector('#last-updated');
   if (timestamp) {
-    lastUpdatedElement.textContent = `Voting Power Last Updated: ${new Date(timestamp).toLocaleString()}`;
+    lastUpdatedElement.textContent = `Table Last Updated: ${new Date(timestamp).toLocaleString()}`;
   } else {
-    lastUpdatedElement.textContent = 'Voting Power Last Updated: Unknown';
+    lastUpdatedElement.textContent = 'Table Last Updated: Unknown';
   }
 }
 
