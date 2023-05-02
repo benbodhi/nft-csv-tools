@@ -117,7 +117,8 @@ async function createCSV(tokenId, holders, ownerType) {
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
   const fileNamePrefix = ownerType === 'original' ? 'original_minters' : 'current_owners';
-  link.setAttribute('download', `token_${tokenId}_${fileNamePrefix}.csv`);
+  const contractAddress = contractAddressInput.value.trim();
+  link.setAttribute('download', `${contractAddress}_token_${tokenId}_${fileNamePrefix}.csv`);
   link.innerText = `Download CSV for Token ID ${tokenId}`;
   link.classList.add('button');
   csvLinksContainer.appendChild(link);
@@ -146,7 +147,8 @@ function createCombinedCSV(tokenHolders, ownerType) {
   const link = document.getElementById('download-combined');
   link.setAttribute('href', encodedUri);
   const fileNamePrefix = ownerType === 'original' ? 'original_minters' : 'current_owners';
-  link.setAttribute('download', `combined_${fileNamePrefix}.csv`);
+  const contractAddress = contractAddressInput.value.trim();
+  link.setAttribute('download', `${contractAddress}_combined_${fileNamePrefix}.csv`);
   link.classList.remove('hidden');
 }
 
@@ -293,7 +295,8 @@ downloadAllLink.addEventListener('click', async (event) => {
   const tempLink = document.createElement('a');
   tempLink.href = zipUrl;
   const fileNamePrefix = ownerType === 'original' ? 'original_minters' : 'current_owners';
-  tempLink.setAttribute('download', `all_retrieved_${fileNamePrefix}.zip`);
+  const contractAddress = contractAddressInput.value.trim();
+  tempLink.setAttribute('download', `${contractAddress}_all_${fileNamePrefix}.zip`);
   tempLink.style.display = 'none';
   document.body.appendChild(tempLink);
   tempLink.click();
