@@ -9,13 +9,18 @@ socket.on('progress', (progress) => {
   const progressBar = document.getElementById('progress');
   progressBar.style.width = `${progress}%`;
 
-  // Update percentage displayed inside the progress bar
-  progressBar.textContent = `${progress.toFixed(0)}%`;
+  // Update percentage displayed below the progress bar
+  const progressPercentage = document.getElementById('progress-percentage');
+  progressPercentage.textContent = `${progress.toFixed(0)}%`;
 });
 
 socket.on('refreshingDataStatus', (isRefreshing) => {
   console.log('Received data refresh status:', isRefreshing);
   setRefreshingDataState(isRefreshing);
+});
+
+socket.on('dataRefreshed', function() {
+  location.reload();
 });
 
 const progressBar = document.getElementById('progress');
@@ -43,8 +48,8 @@ async function fetchData() {
   const { data, lastRun } = await response.json();
 
   // Add logs to check the received data and lastRun values
-  console.log('Received data:', data);
-  console.log('Received lastRun:', lastRun);
+  // console.log('Received data:', data);
+  // console.log('Received lastRun:', lastRun);
 
   // Update the table with the data
   refreshTableData(data);

@@ -302,6 +302,7 @@ async function saveVotingPowerData(votingPowerData) {
   );
 
   console.log('Voting power data saved to MongoDB');
+  io.sockets.emit('dataRefreshed');
 }
 
 let isRefreshingData = false;

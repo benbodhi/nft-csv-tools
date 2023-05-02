@@ -403,18 +403,40 @@ button:disabled:hover {
 .progress-bar {
 	display: none;
 	position: relative;
-	height: 20px;
-	border: 1px solid #ccc;
+	height: 3px;
 }
 
 .progress-bar-inner {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 100%;
-	background-color: #0078d4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-size: 1800% 1800%;
+	background-image: linear-gradient(124deg, #ff2400, #ff7e00, #ffe600, #80ff00, #00ff80, #00ffff, #0080ff, #0000ff, #7f00ff, #ff00ff, #ff007f);
+    -webkit-animation: rainbow 11s ease infinite; /* Increase the duration to slow down the transition */
+    -z-animation: rainbow 11s ease infinite;
+    -o-animation: rainbow 11s ease infinite;
+    animation: rainbow 11s ease infinite;
 }
 
+@-webkit-keyframes rainbow {
+    0%, 100% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+}
+@-moz-keyframes rainbow {
+    0%, 100% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+}
+@-o-keyframes rainbow {
+    0%, 100% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+}
+@keyframes rainbow {
+    0%, 100% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+}
+
+p#progress-percentage,
 p#progress-helper-text,
 p#random-text,
 p#last-updated {
