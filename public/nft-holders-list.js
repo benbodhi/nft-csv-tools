@@ -1,3 +1,4 @@
+// Get DOM elements for form inputs and containers
 const tokenForm = document.getElementById('token-form');
 const contractAddressInput = document.getElementById('contract-address');
 const tokenIdsInput = document.getElementById('token-ids');
@@ -6,7 +7,9 @@ const downloadAllLink = document.getElementById('download-all');
 const tokenRangeInput = document.getElementById('token-range');
 const tokenDateRangeInput = document.getElementById('token-date-range');
 const optionalInputs = [tokenIdsInput, tokenRangeInput, tokenDateRangeInput];
+const fetchAllCheckbox = document.getElementById('fetch-all');
 
+// Loader text options for display while processing data
 const loaderTextOptions = [
   'Grabbing the goods',
   'Won\'t be too long',
@@ -20,31 +23,30 @@ const loaderTextOptions = [
   'Patience is the key',
 ];
 
+// Update the loader text with a random message from loaderTextOptions
 function updateLoaderText(loader) {
   const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
   const randomText = loaderTextOptions[randomIndex];
   loader.innerHTML = `Loading...<br>${randomText}`;
 }
 
+// Get all input elements inside .input-container and add clear functionality
 const inputs = document.querySelectorAll('.input-container input');
-
-// Get the "fetch-all" checkbox element
-const fetchAllCheckbox = document.getElementById('fetch-all');
-
 inputs.forEach(input => {
   const clearIcon = input.nextElementSibling;
-
   clearIcon.addEventListener('click', () => {
     input.value = '';
   });
 });
 
+// Clear all other optional input fields except the current input
 function clearOtherInputs(currentInput) {
   optionalInputs.filter(other => other !== currentInput).forEach(other => {
     other.value = '';
   });
 }
 
+// Validate token IDs input format
 function validateTokenIds(tokenIds) {
   if (!tokenIds) {
     return false;
@@ -53,6 +55,7 @@ function validateTokenIds(tokenIds) {
   return idsPattern.test(tokenIds);
 }
 
+// Validate token range input format
 function validateTokenRange(tokenRange) {
   if (!tokenRange) {
     return false;
@@ -61,6 +64,7 @@ function validateTokenRange(tokenRange) {
   return rangePattern.test(tokenRange);
 }
 
+// Validate token date range input format
 function validateTokenDateRange(tokenDateRange) {
   if (!tokenDateRange) {
     return false;
@@ -69,6 +73,7 @@ function validateTokenDateRange(tokenDateRange) {
   return dateRangePattern.test(tokenDateRange);
 }
 
+// Check if at least one of the optional inputs is filled or fetchAllCheckbox is checked
 function validateOptionalInputs() {
   for (const input of optionalInputs) {
     if (input.value.trim() !== '') {
@@ -78,6 +83,7 @@ function validateOptionalInputs() {
   return fetchAllCheckbox.checked;
 }
 
+// Add event listeners to optional inputs to clear other inputs when focused or changed
 optionalInputs.forEach(input => {
   input.addEventListener('focus', () => {
     if (input.value.trim() === '') {
@@ -92,6 +98,13 @@ optionalInputs.forEach(input => {
   });
 });
 
+// Validate Ethereum address format
+function isValidEthereumAddress(address) {
+  const ethAddressPattern = /^0x[a-fA-F0-9]{40}$/;
+  return ethAddressPattern.test(address);
+}
+
+// Initialise Litepicker for date range input
 const litepicker = new Litepicker({
   element: tokenDateRangeInput,
   format: 'YYYY-MM-DD',
@@ -106,8 +119,10 @@ const litepicker = new Litepicker({
   }
 });
 
+// Initialize the number of token IDs processed
 let numTokenIdsProcessed = 0;
 
+// Create a CSV file for a given token ID and its holders
 async function createCSV(tokenId, holders, ownerType) {
   // Increment the number of token IDs processed
   numTokenIdsProcessed++;
@@ -137,6 +152,7 @@ async function createCSV(tokenId, holders, ownerType) {
   return link;
 }
 
+// Create a combined CSV file for all token IDs and their holders
 function createCombinedCSV(tokenHolders, ownerType) {
   const combinedHolders = new Set();
   tokenHolders.forEach(({ tokenId, holders }) => {
@@ -152,6 +168,7 @@ function createCombinedCSV(tokenHolders, ownerType) {
   link.classList.remove('hidden');
 }
 
+// Update the disabled state of optional inputs based on contract address input
 contractAddressInput.addEventListener('input', () => {
   const isContractAddressFilled = contractAddressInput.value.trim() !== '';
   tokenIdsInput.disabled = !isContractAddressFilled;
@@ -159,6 +176,7 @@ contractAddressInput.addEventListener('input', () => {
   tokenDateRangeInput.disabled = !isContractAddressFilled;
 });
 
+// Handle token form submission
 tokenForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -189,6 +207,13 @@ tokenForm.addEventListener('submit', async (event) => {
   // Validate date range format
   if (tokenDateRangeInput.value && !validateTokenDateRange(tokenDateRangeInput.value)) {
     alert('Invalid Token Date Range format. Please use the format: "YYYY-MM-DD to YYYY-MM-DD" (e.g., "2022-01-01 to 2022-12-31")');
+    return;
+  }
+
+  // Validate contract address format
+  const inputContractAddress = contractAddressInput.value.trim();
+  if (!isValidEthereumAddress(inputContractAddress)) {
+    alert('Please enter a valid Ethereum token contract address.');
     return;
   }
 
@@ -259,6 +284,7 @@ tokenForm.addEventListener('submit', async (event) => {
   clearInterval(loaderTextInterval);
 });
 
+// Download all CSVs in a ZIP file
 downloadAllLink.addEventListener('click', async (event) => {
   event.preventDefault();
 
@@ -304,11 +330,5 @@ downloadAllLink.addEventListener('click', async (event) => {
   setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('download-combined button class list:', document.getElementById('download-combined').classList);
-  console.log('download-all button class list:', document.getElementById('download-all').classList);
-});
-
 // TODO support for erc-1155
-// TODO better progress update info for user
 // TODO make sure we don't bother processing beyond existing tokens - maybe check total tokens before iterating through non existent ones for better performance.
