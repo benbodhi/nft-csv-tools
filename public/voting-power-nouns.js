@@ -33,6 +33,11 @@ const loaderTextOptions = [
   'Patience is the key',
 ];
 
+function updateLoaderText(element) {
+  const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
+  element.textContent = loaderTextOptions[randomIndex];
+}
+
 async function fetchData() {
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
