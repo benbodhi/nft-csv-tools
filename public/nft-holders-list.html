@@ -30,11 +30,14 @@
 		<a href="voting-power-nouns.html">Nouner Power</a>
 	</nav>
 	<div class="intro">
-		<p>This tool allows you to input a token contract address (Ethereum Network) and either specify or fetch token IDs to output lists of holders or original minters.<br>Handy for airdops, token gating or allowlisting for holders/minters of a specific token.</p>
+		<p>This tool allows you to input a token contract address (Ethereum Network) and either specify or fetch token
+			IDs to output lists of holders or original minters.<br>Handy for airdops, token gating or allowlisting for
+			holders/minters of a specific token.</p>
 		<h3>Instructions</h3>
 		<ol>
 			<li>Paste the token contract address in the first field.</li>
-			<li>Use any one of the next 3 fields or the "fetch all" checkbox to specify the token IDs to get holder/minter addresses for.</li>
+			<li>Use any one of the next 3 fields or the "fetch all" checkbox to specify the token IDs to get
+				holder/minter addresses for.</li>
 			<li>Select whether you want the current token holder or the original minter address.</li>
 			<li>Press the "Fetch Token Holders" button and wait.</li>
 			<li>Download whichever CSVs you want when the buttons show up.</li>
@@ -50,35 +53,45 @@
 			</div>
 			<p class="form__description">Enter the token contract address to pull owners from 👆</p>
 
-			<label for="token-ids" class="form__label">Token ID(s):</label>
-			<div class="input-container">
-				<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
-				<span class="clear-icon" title="Clear input">x</span>
-			</div>
-			<p class="form__description">Single token ID or comma-separated list</p>
+			<fieldset class="form__fieldset">
+				<legend class="form__legend">Specify Token IDs</legend>
+				<p class="form__description">You can use any of these 3 optional fields to select specific IDs,
+					otherwise you can use the "Fetch All" option below</p>
+				<label for="token-ids" class="form__label">Token ID(s):</label>
+				<div class="input-container">
+					<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
+					<span class="clear-icon" title="Clear input">x</span>
+				</div>
+				<p class="form__description">Single token ID or comma-separated list</p>
 
-			<label for="token-range" class="form__label">Token ID Range:</label>
-			<div class="input-container">
-				<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
-				<span class="clear-icon" title="Clear input">x</span>
-			</div>
-			<p class="form__description">Two token IDs to get them and all between</p>
+				<label for="token-range" class="form__label">Token ID Range:</label>
+				<div class="input-container">
+					<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
+					<span class="clear-icon" title="Clear input">x</span>
+				</div>
+				<p class="form__description">Two token IDs to get them and all between</p>
 
-			<label for="token-date-range" class="form__label">Date Range:</label>
-			<div class="input-container">
-				<input type="text" id="token-date-range" class="form__input" placeholder="2022-01-01 to 2022-01-31"
-					disabled>
-				<span class="clear-icon" title="Clear input">x</span>
-			</div>
-			<p class="form__description">Select from and to dates (UTC), can be same day (YYYY-MM-DD to YYYY-MM-DD)</p>
-
-			<label for="fetch-all">
-				<input type="checkbox" id="fetch-all" name="fetch-all" />
-				Fetch all owners/minters of tokens from this contract
-			</label>
+				<label for="token-date-range" class="form__label">Date Range:</label>
+				<div class="input-container">
+					<input type="text" id="token-date-range" class="form__input" placeholder="2022-01-01 to 2022-01-31"
+						disabled>
+					<span class="clear-icon" title="Clear input">x</span>
+				</div>
+				<p class="form__description">Select from and to dates (UTC), can be same day (YYYY-MM-DD to YYYY-MM-DD)
+				</p>
+			</fieldset>
 
 			<fieldset class="form__fieldset">
-				<legend class="form__legend">Get Wallet:</legend>
+				<legend class="form__legend">Fetch All</legend>
+				<label for="fetch-all">
+					<input type="checkbox" id="fetch-all" name="fetch-all" />
+					Fetch all token IDs from this contract
+				</label>
+				<p class="form__description">If selected, you don't need to use the ID fields above</p>
+			</fieldset>
+
+			<fieldset class="form__fieldset">
+				<legend class="form__legend">Owner or OG Minter?</legend>
 				<input type="radio" id="owner-current" name="owner-type" value="current" checked>
 				<label for="owner-current">Current Owner</label>
 				<input type="radio" id="owner-original" name="owner-type" value="original">

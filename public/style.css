@@ -221,6 +221,9 @@ nav a.active {
 	margin: 0 auto 2em;
 	font-size: 0.85em;
 }
+p.form__description:last-child {
+    margin-bottom: 0;
+}
 
 .form__label {
 	display: block;
