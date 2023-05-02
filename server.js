@@ -1,4 +1,7 @@
+// Load environment variables from the .env file
 require('dotenv').config();
+
+// Import required modules
 const http = require('http');
 const socketIO = require('socket.io');
 const express = require('express');
@@ -10,22 +13,27 @@ const path = require('path');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const { MongoClient } = require('mongodb');
 
+// Create express app and configure HTTP server
 const app = express();
 const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = socketIO(server);
 app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist/'));
 
+// Start the server and listen for connections
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+// Configure middleware
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 
+// Set up MongoDB connection string
 const uri = process.env.MONGODB_CONNECTION_STRING;
 
+// Connect to MongoDB
 async function connectToDB() {
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -39,6 +47,10 @@ async function connectToDB() {
   }
 }
 
+/**
+ * NFT Holders List page
+ */
+// Fetch minted token IDs by date range
 async function fetchMintedTokenIdsByDateRange(contractAddress, tokenDateStart, tokenDateEnd, apiKey, ownerType) {
   const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${contractAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
   const response = await axios.get(url);
@@ -79,6 +91,7 @@ async function fetchMintedTokenIdsByDateRange(contractAddress, tokenDateStart, t
   }
 }
 
+// Fetch all token IDs
 async function fetchAllTokenIds(contractAddress, apiKey) {
   const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${contractAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
   const response = await axios.get(url);
@@ -94,6 +107,7 @@ async function fetchAllTokenIds(contractAddress, apiKey) {
   return Array.from(tokenIds);
 }
 
+// Fetch token holders endpoint
 app.post('/fetch-token-holders', async (req, res) => {
   const { contractAddress, tokenIds, tokenRange, tokenDateStart, tokenDateEnd, combined, ownerType, fetchAll } = req.body;
   const apiKey = process.env.ETHERSCAN_API_KEY;
@@ -186,8 +200,10 @@ app.post('/fetch-token-holders', async (req, res) => {
 });
 
 /**
- * Export CSV of NFTs held by wallet
+ * NFTs in Wallet
  */
+
+// Export CSV of NFTs held by wallet
 function nftsToCSV(nfts, tokenReference = false) {
   const fieldnames = tokenReference
     ? ["token_address", "token_name", "token_count"]
@@ -230,6 +246,7 @@ function nftsToCSV(nfts, tokenReference = false) {
   }
 }
 
+// Fetch NFTs for a wallet address
 async function fetch_nfts(walletAddress, apiKey) {
   const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${walletAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
   const response = await axios.get(url);
@@ -241,6 +258,7 @@ async function fetch_nfts(walletAddress, apiKey) {
   }
 }
 
+// Export NFTs endpoint
 app.post('/export-nfts', async (req, res) => {
   const { walletAddresses } = req.body;
   const apiKey = process.env.ETHERSCAN_API_KEY;
@@ -261,6 +279,7 @@ app.post('/export-nfts', async (req, res) => {
 /**
  * Nouns Voting Power
  */
+// Get voting power data from the database
 async function getVotingPowerDataFromDB() {
   const db = await connectToDB();
   if (!db) {
@@ -278,6 +297,7 @@ async function getVotingPowerDataFromDB() {
   return { data, lastRun };
 }
 
+// Save voting power data to the database
 async function saveVotingPowerData(votingPowerData) {
   const db = await connectToDB();
   if (!db) {
@@ -307,6 +327,7 @@ async function saveVotingPowerData(votingPowerData) {
 
 let isRefreshingData = false;
 
+// Fetch voting power data
 const fetchVotingPowerData = async (io) => {
   isRefreshingData = true;
 
@@ -374,6 +395,7 @@ const fetchVotingPowerData = async (io) => {
 
 let fetchedData = [];
 
+// Voting power data endpoint
 app.get('/api/voting-power', async (req, res) => {
   if (!fetchedData.length) {
     fetchedData = await fetchVotingPowerData(io);
@@ -381,6 +403,7 @@ app.get('/api/voting-power', async (req, res) => {
   res.json(fetchedData);
 });
 
+// Download voting power data endpoint
 app.get('/api/voting-power/download', async (req, res) => {
   if (!fetchedData.length) {
     fetchedData = await fetchVotingPowerData(io);
