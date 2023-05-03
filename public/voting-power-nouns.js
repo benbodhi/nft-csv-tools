@@ -317,6 +317,10 @@ function sortTable(columnIndex, tableId, initialDirection, ignoreSortingState = 
 
 // Add event listener to the download CSV button to trigger the download of the voting power data in CSV format
 document.getElementById('download-csv-button').addEventListener('click', async () => {
+  const downloadButton = document.getElementById('download-csv-button');
+  downloadButton.textContent = 'Downloading...';
+  downloadButton.disabled = true;
+
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
 
@@ -337,4 +341,14 @@ document.getElementById('download-csv-button').addEventListener('click', async (
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+
+  // Update the text of the download button to indicate that the download is complete
+  downloadButton.textContent = 'Download complete';
+  downloadButton.disabled = true;
+
+  // Set a timeout to change the button text back to its original value after 3 seconds
+  setTimeout(() => {
+    downloadButton.textContent = 'Download table as CSV';
+    downloadButton.disabled = false;
+  }, 3000);
 });
