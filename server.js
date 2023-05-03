@@ -8,6 +8,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const Web3 = require('web3');
+const namehash = require('eth-ens-namehash');
 const fs = require('fs');
 const path = require('path');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
@@ -202,7 +203,6 @@ app.post('/fetch-token-holders', async (req, res) => {
 /**
  * NFTs in Wallet
  */
-
 // Export CSV of NFTs held by wallet
 function nftsToCSV(nfts, tokenReference = false) {
   const fieldnames = tokenReference
@@ -279,6 +279,60 @@ app.post('/export-nfts', async (req, res) => {
 /**
  * Nouns Voting Power
  */
+// Resolve ENS names using addresses
+async function resolveENSName(address) {
+  try {
+    const providerUrl = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
+    const web3 = new Web3(providerUrl);
+    const ensRegistryAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'; // ENS registry address on Ethereum mainnet
+    const ensABI = [
+      {
+        constant: true,
+        inputs: [{ name: 'node', type: 'bytes32' }],
+        name: 'resolver',
+        outputs: [{ name: 'resolverAddress', type: 'address' }],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function'
+      }
+    ];
+    const ensRegistryContract = new web3.eth.Contract(ensABI, ensRegistryAddress);
+
+    const reverseENSName = address.slice(2).toLowerCase() + '.addr.reverse';
+    const node = namehash.hash(reverseENSName);
+    console.log(`ENS node for address ${address}: ${node}`);
+
+    const resolverAddress = await ensRegistryContract.methods.resolver(node).call();
+    console.log(`Resolver address for ENS node ${node}: ${resolverAddress}`);
+
+    if (resolverAddress === '0x0000000000000000000000000000000000000000') {
+      console.log(`No resolver found for ENS node ${node}`);
+      return null;
+    }
+
+    const resolverABI = [
+      {
+        constant: true,
+        inputs: [{ name: 'node', type: 'bytes32' }],
+        name: 'name',
+        outputs: [{ name: 'ensName', type: 'string' }],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function'
+      }
+    ];
+    const resolverContract = new web3.eth.Contract(resolverABI, resolverAddress);
+    const ensName = await resolverContract.methods.name(node).call();
+
+    console.log(`Processing ENS name for address ${address}: ${ensName}`);
+
+    return ensName || null;
+  } catch (error) {
+    console.error(`Error resolving ENS name for address: ${address}`);
+    return null;
+  }
+}
+
 // Get voting power data from the database
 async function getVotingPowerDataFromDB() {
   const db = await connectToDB();
@@ -357,15 +411,20 @@ const fetchVotingPowerData = async (io) => {
         delegate: delegatedAddress === '0x0000000000000000000000000000000000000000' ? null : delegatedAddress
       });
 
-      // Log progress in the console
+      // Set progress
       const progress = ((i + 1) / totalSupply) * 100;
-      console.log(`Progress: ${progress.toFixed(2)}% (${i + 1}/${totalSupply})`);
+
+      // Log progress in the console
+      // console.log(`Progress: ${progress.toFixed(2)}% (${i + 1}/${totalSupply})`);
 
       // Log progress emission
-      console.log('Emitting progress:', progress);
+      // console.log('Emitting progress:', progress);
 
       // Emit progress update via socket
       io.emit('progress', progress);
+
+      // Log current item being processed
+      // console.log(`Current item: Token ID: ${tokenId}, Owner: ${owner}, Delegate: ${delegatedAddress}`);
     }
 
     // Combine owners and delegates and calculate voting power for each address
@@ -376,16 +435,23 @@ const fetchVotingPowerData = async (io) => {
     });
 
     // Convert the votingPowerMap to an array of objects
-    const votingPowerData = Array.from(votingPowerMap.entries()).map(([address, votingPower]) => ({
-      address,
-      votingPower
-    }));
+    const votingPowerDataPromises = Array.from(votingPowerMap.entries()).map(async ([address, votingPower]) => {
+      const ensName = await resolveENSName(address);
+      console.log(`Processing ENS name for address ${address}: ${ensName}`);
+      return {
+        address,
+        votingPower,
+        ensName
+      };
+    });
+
+    const resolvedVotingPowerData = await Promise.all(votingPowerDataPromises);
 
     // Save the voting power data to the MongoDB collection
-    await saveVotingPowerData(votingPowerData);
+    await saveVotingPowerData(resolvedVotingPowerData);
 
     isRefreshingData = false;
-    return votingPowerData;
+    return resolvedVotingPowerData;
   } catch (error) {
     console.error('Error fetching data:', error);
     isRefreshingData = false;
@@ -408,7 +474,7 @@ app.get('/api/voting-power/download', async (req, res) => {
   if (!fetchedData.length) {
     fetchedData = await fetchVotingPowerData(io);
   }
-  const fields = ['address', 'votingPower'];
+  const fields = ['address', 'votingPower', 'ensName'];
   const opts = { fields };
   const parser = new Parser(opts);
   const csv = parser.parse(fetchedData);
@@ -435,3 +501,18 @@ app.post('/api/voting-power/refresh', async (req, res) => {
   fetchedData = await fetchVotingPowerData(io);
   res.json({ message: 'Data refreshed successfully.' });
 });
+
+// Debugging endpoint - remove later
+// app.get('/api/debug/resolve-ens', async (req, res) => {
+//   const { address } = req.query;
+//   if (!address) {
+//     return res.status(400).json({ message: 'Address is required' });
+//   }
+
+//   try {
+//     const ensName = await resolveENSName(address);
+//     res.json({ ensName });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error resolving ENS name', error });
+//   }
+// });
