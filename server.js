@@ -494,19 +494,19 @@ app.get('/api/voting-power', async (req, res) => {
 });
 
 // Download voting power data endpoint
-app.get('/api/voting-power/download', async (req, res) => {
-  if (!fetchedData.length) {
-    fetchedData = await fetchVotingPowerData(io);
-  }
-  const fields = ['address', 'votingPower', 'ensName'];
-  const opts = { fields };
-  const parser = new Parser(opts);
-  const csv = parser.parse(fetchedData);
+// app.get('/api/voting-power/download', async (req, res) => {
+//   if (!fetchedData.length) {
+//     fetchedData = await fetchVotingPowerData(io);
+//   }
+//   const fields = ['address', 'ensName', 'votingPower'];
+//   const opts = { fields };
+//   const parser = new Parser(opts);
+//   const csv = parser.parse(fetchedData);
 
-  res.header('Content-Type', 'text/csv');
-  res.attachment('nouns-voting-power.csv');
-  res.send(csv);
-});
+//   res.header('Content-Type', 'text/csv');
+//   res.attachment('nouner-power.csv');
+//   res.send(csv);
+// });
 
 app.get('/api/voting-power/refresh-status', (req, res) => {
   res.json({ isRefreshing: isRefreshingData });

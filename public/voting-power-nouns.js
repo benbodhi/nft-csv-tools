@@ -332,7 +332,7 @@ document.getElementById('download-csv-button').addEventListener('click', async (
   // Create a temporary anchor element to trigger the download
   const link = document.createElement('a');
   link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  link.download = 'nouns-voting-power.csv';
+  link.download = 'nouner-power.csv';
   link.style.display = 'none';
   document.body.appendChild(link);
   link.click();
