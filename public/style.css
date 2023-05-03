@@ -66,6 +66,10 @@ body.dark-mode .form__legend {
 	color: #f5f5f5;
 }
 
+body.dark-mode footer {
+	background-color: #121212;
+}
+
 /* Light Mode styles */
 body.light-mode {
 	background-color: #f5f5f5;
@@ -105,6 +109,10 @@ body.light-mode nav a.active {
 body.light-mode .intro {
 	background-color: #e5e5e5;
 	color: #333;
+}
+
+body.light-mode footer {
+	background-color: #f5f5f5;
 }
 
 /* Header styles */
@@ -518,7 +526,7 @@ body.dark-mode td:not(:last-child) {
 
 /* Footer styles */
 .footer {
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 	padding: 1rem;
 	width: calc(100% - 2rem);
