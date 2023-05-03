@@ -282,8 +282,11 @@ app.post('/export-nfts', async (req, res) => {
 // Resolve ENS names using addresses
 async function resolveENSName(address) {
   try {
+    // Create a new instance of the Web3 library and set the provider URL to Infura
     const providerUrl = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
     const web3 = new Web3(providerUrl);
+
+    // Define the ENS registry address and ABI
     const ensRegistryAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'; // ENS registry address on Ethereum mainnet
     const ensABI = [
       {
@@ -296,20 +299,26 @@ async function resolveENSName(address) {
         type: 'function'
       }
     ];
+
+    // Create a new instance of the ENS registry contract
     const ensRegistryContract = new web3.eth.Contract(ensABI, ensRegistryAddress);
 
+    // Compute the reverse ENS name and the corresponding node hash
     const reverseENSName = address.slice(2).toLowerCase() + '.addr.reverse';
     const node = namehash.hash(reverseENSName);
     console.log(`ENS node for address ${address}: ${node}`);
 
+    // Get the resolver address for the ENS node hash
     const resolverAddress = await ensRegistryContract.methods.resolver(node).call();
     console.log(`Resolver address for ENS node ${node}: ${resolverAddress}`);
 
+    // Check if the resolver address is not set and return null if it is not set
     if (resolverAddress === '0x0000000000000000000000000000000000000000') {
       console.log(`No resolver found for ENS node ${node}`);
       return null;
     }
 
+    // Define the resolver ABI and create a new instance of the resolver contract
     const resolverABI = [
       {
         constant: true,
@@ -322,8 +331,9 @@ async function resolveENSName(address) {
       }
     ];
     const resolverContract = new web3.eth.Contract(resolverABI, resolverAddress);
-    const ensName = await resolverContract.methods.name(node).call();
 
+    // Get the ENS name for the reverse ENS node hash
+    const ensName = await resolverContract.methods.name(node).call();
     console.log(`Processing ENS name for address ${address}: ${ensName}`);
 
     // Check if the ENS name is properly set for the reverse record
@@ -332,15 +342,16 @@ async function resolveENSName(address) {
       return null;
     }
 
-    // Additional check: If the returned ENS name resolves to the same address
-    const resolvedAddress = await ensRegistryContract.methods.addr(namehash.hash(ensName)).call();
-    if (resolvedAddress.toLowerCase() !== address.toLowerCase()) {
-      console.log(`Mismatch between resolved ENS name and address for ${address}: ${ensName}`);
+    // Check if the ENS name is set to zero address and return null if it is
+    if (ensName === '0x0000000000000000000000000000000000000000') {
+      console.log(`ENS name returned ${ensName}`);
       return null;
     }
 
+    // Return the resolved ENS name
     return ensName;
   } catch (error) {
+    // Log an error message and return null if there is an error resolving the ENS name
     console.error(`Error resolving ENS name for address: ${address}`);
     return null;
   }
