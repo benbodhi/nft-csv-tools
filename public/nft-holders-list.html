@@ -12,15 +12,7 @@
 <body>
 	<header class="header">
 		<div class="header__title">
-			<a href="index.html">NFT CSV Tools</a>
-		</div>
-		<div class="header__toggle">
-			<label for="toggle" class="toggle__label">
-				<img src="noggle-toggle-dark.svg" alt="Dark mode" class="toggle__icon toggle__icon--dark" />
-				<input type="checkbox" class="toggle__input" id="toggle" />
-				<span class="toggle__switch"></span>
-				<img src="noggle-toggle-light.svg" alt="Light mode" class="toggle__icon toggle__icon--light" />
-			</label>
+			<a href="index.html" class="logo-link"><span class="logo-svg"></span></a>
 		</div>
 	</header>
 	<nav>
@@ -46,7 +38,7 @@
 	</div>
 	<main class="main">
 		<form id="token-form" class="form">
-			<label for="contract-address" class="form__label">Contract Address:</label>
+			<label for="contract-address" class="form__label contract-address">Contract Address</label>
 			<div class="input-container">
 				<input type="text" id="contract-address" class="form__input" placeholder="0x..." required>
 				<span class="clear-icon" title="Clear input">x</span>
@@ -57,28 +49,27 @@
 				<legend class="form__legend">Specify Token IDs</legend>
 				<p class="form__description">You can use any of these 3 optional fields to select specific IDs,
 					otherwise you can use the "Fetch All" option below</p>
-				<label for="token-ids" class="form__label">Token ID(s):</label>
+				<label for="token-ids" class="form__label">Token ID(s)</label>
 				<div class="input-container">
 					<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
 					<span class="clear-icon" title="Clear input">x</span>
 				</div>
 				<p class="form__description">Single token ID or comma-separated list</p>
 
-				<label for="token-range" class="form__label">Token ID Range:</label>
+				<label for="token-range" class="form__label">Token ID Range</label>
 				<div class="input-container">
 					<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
 					<span class="clear-icon" title="Clear input">x</span>
 				</div>
 				<p class="form__description">Two token IDs to get them and all between</p>
 
-				<label for="token-date-range" class="form__label">Date Range:</label>
+				<label for="token-date-range" class="form__label">Date Range</label>
 				<div class="input-container">
 					<input type="text" id="token-date-range" class="form__input" placeholder="2022-01-01 to 2022-01-31"
 						disabled>
 					<span class="clear-icon" title="Clear input">x</span>
 				</div>
-				<p class="form__description">Select from and to dates (UTC), can be same day (YYYY-MM-DD to YYYY-MM-DD)
-				</p>
+				<p class="form__description">Select from and to dates (UTC), can be same day<br>(YYYY-MM-DD to YYYY-MM-DD)</p>
 			</fieldset>
 
 			<fieldset class="form__fieldset">
@@ -115,6 +106,17 @@
 			</div>
 		</div>
 	</main>
+	<footer class="footer">
+		<div class="footer__toggle">
+			<label for="toggle" class="toggle__label">
+				<img src="noggle-toggle-dark.svg" alt="Dark mode" class="toggle__icon toggle__icon--dark" />
+				<input type="checkbox" class="toggle__input" id="toggle" />
+				<span class="toggle__switch"></span>
+				<img src="noggle-toggle-light.svg" alt="Light mode" class="toggle__icon toggle__icon--light" />
+			</label>
+		</div>
+		<p><a href="https://twitter.com/benbodhi" target="_blank">Benbodhi.⌐◨-◨</a></p>
+	</footer>
 	<script src="noggle-toggle.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>

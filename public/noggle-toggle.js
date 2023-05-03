@@ -6,12 +6,12 @@ function switchTheme(event) {
     document.documentElement.setAttribute('data-theme', 'light');
     document.body.classList.remove('dark-mode');
     document.body.classList.add('light-mode');
-    toggleLabel.querySelector('.toggle__icon--light').style.display = 'inline-block';
+    // toggleLabel.querySelector('.toggle__icon--light').style.display = 'inline-block';
   } else {
     document.documentElement.setAttribute('data-theme', 'dark');
     document.body.classList.remove('light-mode');
     document.body.classList.add('dark-mode');
-    toggleLabel.querySelector('.toggle__icon--dark').style.display = 'inline-block';
+    // toggleLabel.querySelector('.toggle__icon--dark').style.display = 'inline-block';
   }
 }
 
