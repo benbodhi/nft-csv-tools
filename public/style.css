@@ -480,7 +480,7 @@ body.dark-mode td:not(:last-child) {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-top: 20px;
+	margin-top: 0.3rem;
 }
 .toggle__input {
 	display: none;
