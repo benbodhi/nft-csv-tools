@@ -326,7 +326,20 @@ async function resolveENSName(address) {
 
     console.log(`Processing ENS name for address ${address}: ${ensName}`);
 
-    return ensName || null;
+    // Check if the ENS name is properly set for the reverse record
+    if (!ensName || ensName === '' || ensName.endsWith('.addr.reverse')) {
+      console.log(`Invalid ENS name for address ${address}: ${ensName}`);
+      return null;
+    }
+
+    // Additional check: If the returned ENS name resolves to the same address
+    const resolvedAddress = await ensRegistryContract.methods.addr(namehash.hash(ensName)).call();
+    if (resolvedAddress.toLowerCase() !== address.toLowerCase()) {
+      console.log(`Mismatch between resolved ENS name and address for ${address}: ${ensName}`);
+      return null;
+    }
+
+    return ensName;
   } catch (error) {
     console.error(`Error resolving ENS name for address: ${address}`);
     return null;
@@ -501,18 +514,3 @@ app.post('/api/voting-power/refresh', async (req, res) => {
   fetchedData = await fetchVotingPowerData(io);
   res.json({ message: 'Data refreshed successfully.' });
 });
-
-// Debugging endpoint - remove later
-// app.get('/api/debug/resolve-ens', async (req, res) => {
-//   const { address } = req.query;
-//   if (!address) {
-//     return res.status(400).json({ message: 'Address is required' });
-//   }
-
-//   try {
-//     const ensName = await resolveENSName(address);
-//     res.json({ ensName });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error resolving ENS name', error });
-//   }
-// });
