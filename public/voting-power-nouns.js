@@ -88,7 +88,9 @@ async function fetchData() {
 function updateLastUpdatedText(timestamp) {
   const lastUpdatedElement = document.querySelector('#last-updated');
   if (timestamp) {
-    lastUpdatedElement.textContent = `Table Last Updated: ${new Date(timestamp).toLocaleString()}`;
+    const options = { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = new Date(timestamp).toLocaleString('en-US', options);
+    lastUpdatedElement.textContent = `Table Last Updated: ${formattedDate}`;
   } else {
     lastUpdatedElement.textContent = 'Table Last Updated: Unknown';
   }
@@ -348,7 +350,44 @@ document.getElementById('download-csv-button').addEventListener('click', async (
 
   // Set a timeout to change the button text back to its original value after 3 seconds
   setTimeout(() => {
-    downloadButton.textContent = 'Download table as CSV';
+    downloadButton.textContent = 'Download Data as CSV';
+    downloadButton.disabled = false;
+  }, 3000);
+});
+
+// Add event listener to the download extended CSV button to trigger the download of the voting power data in CSV format with additional columns
+document.getElementById('download-extended-csv-button').addEventListener('click', async () => {
+  const downloadButton = document.getElementById('download-extended-csv-button');
+  downloadButton.textContent = 'Downloading...';
+  downloadButton.disabled = true;
+
+  const response = await fetch('/api/voting-power-data');
+  const { data, lastRun } = await response.json();
+
+  // Sort the data by voting power descending
+  const sortedData = data.sort((a, b) => b.votingPower - a.votingPower);
+
+  // Convert the data to CSV format with additional columns
+  // const csvData = data.map(({ address, ensName, votingPower, column1, column2, column3 }) => `${address},${ensName || ''},${votingPower},${column1},${column2},${column3}`).join('\n');
+  const csvData = data.map(({ address, ensName, votingPower }) => `${address},${ensName || ''},${votingPower},,,,,\n`).join(''); // Leave new column cells empty
+  const csv = `Address,ENS Name,Voting Power,Potential Yes,Potential No,Onchain Yes,Onchain No,Onchain Abstain\n${csvData}`;
+
+  // Create a temporary anchor element to trigger the download
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = 'nouner-power-rally-votes.csv';
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Update the text of the download button to indicate that the download is complete
+  downloadButton.textContent = 'Download complete';
+  downloadButton.disabled = true;
+
+  // Set a timeout to change the button text back to its original value after 3 seconds
+  setTimeout(() => {
+    downloadButton.textContent = 'Download Vote Tracker CSV';
     downloadButton.disabled = false;
   }, 3000);
 });

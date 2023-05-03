@@ -345,6 +345,11 @@ button:disabled:hover {
 	opacity: 0.6;
 }
 
+button#refresh-data-button {
+    margin: 1em auto;
+    padding: 10px 2em;
+}
+
 /* Output */
 
 .output {
