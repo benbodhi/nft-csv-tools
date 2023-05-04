@@ -370,7 +370,7 @@ document.getElementById('download-csv-button').addEventListener('click', async (
 
   // Convert the data to CSV format
   const csvData = data.map(({ address, ensName, votingPower }) => `${address},${ensName || ''},${votingPower}`).join('\n');
-  const csv = `Address,ENS Name,Voting Power\n${csvData}`;
+  const csv = `Address,NNS/ENS Name,Voting Power\n${csvData}`;
 
   // Create a temporary anchor element to trigger the download
   const link = document.createElement('a');
@@ -407,7 +407,7 @@ document.getElementById('download-extended-csv-button').addEventListener('click'
   // Convert the data to CSV format with additional columns
   // const csvData = data.map(({ address, ensName, votingPower, column1, column2, column3 }) => `${address},${ensName || ''},${votingPower},${column1},${column2},${column3}`).join('\n');
   const csvData = data.map(({ address, ensName, votingPower }) => `${address},${ensName || ''},${votingPower},,,,,\n`).join(''); // Leave new column cells empty
-  const csv = `Address,ENS Name,Voting Power,Potential Yes,Potential No,Onchain Yes,Onchain No,Onchain Abstain\n${csvData}`;
+  const csv = `Address,NNS/ENS Name,Voting Power,Potential Yes,Potential No,Onchain Yes,Onchain No,Onchain Abstain\n${csvData}`;
 
   // Create a temporary anchor element to trigger the download
   const link = document.createElement('a');
