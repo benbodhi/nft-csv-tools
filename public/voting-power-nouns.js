@@ -61,8 +61,49 @@ function updateLoaderText(element) {
   element.textContent = loaderTextOptions[randomIndex];
 }
 
+// Define a function to show the loader before the table has loaded
+function showPageLoader() {
+  document.querySelector(".page-loader").style.display = "block";
+  document.querySelector(".main-content").style.display = "none";
+}
+
+// Define a function to hide the loader after the table has loaded
+function hidePageLoader() {
+  document.querySelector(".page-loader").style.display = "none";
+  document.querySelector(".main-content").style.display = "block";
+}
+
+// Load noggles loader svg inline
+async function loadInlineSVG() {
+  const response = await fetch('noggles-loading.svg');
+  const svgContent = await response.text();
+
+  document.getElementById('inline-noggles-loading').innerHTML = svgContent;
+
+  // animate the SVG
+  animateNogglesLoading();
+}
+
+// Animation for noggles loading SVG
+async function animateNogglesLoading() {
+  const states = document.getElementsByClassName("noggle-animation-state")
+  const total = states.length
+  let currentId = 1
+  setInterval(() => {
+    if (currentId === total) currentId = 1
+    else currentId++
+    for (const state of states) {
+      const id = Number(state.id.slice(6))
+      if (id === currentId) state.style.display = 'block'
+      else state.style.display = 'none'
+    }
+  }, 100);
+}
+
 // Define an asynchronous function to fetch data from the server
 async function fetchData() {
+  // Show the page loader while populating the table
+  showPageLoader();
   // Send a GET request to the server to fetch the voting power data
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
@@ -82,6 +123,9 @@ async function fetchData() {
 
   // Update the last updated text with the last run timestamp
   updateLastUpdatedText(lastRun);
+
+  // Hide the page loader after populating the table
+  hidePageLoader();
 }
 
 // Define a function to update the last updated text with the last run timestamp
@@ -193,6 +237,10 @@ function setRefreshingDataState(isRefreshing) {
 
 // When the DOM is fully loaded, set up event listeners and fetch initial data
 document.addEventListener('DOMContentLoaded', async () => {
+
+  // Load the SVG noggles loader inline
+  loadInlineSVG();
+
   // Get a reference to the refresh data button
   const refreshDataButton = document.getElementById('refresh-data-button');
 

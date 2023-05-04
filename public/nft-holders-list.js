@@ -27,7 +27,7 @@ const loaderTextOptions = [
 function updateLoaderText(loader) {
   const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
   const randomText = loaderTextOptions[randomIndex];
-  loader.innerHTML = `Loading...<br>${randomText}`;
+  loader.innerHTML = `...Loading...<br><br>${randomText}`;
 }
 
 // Get all input elements inside .input-container and add clear functionality
@@ -137,8 +137,6 @@ async function createCSV(tokenId, holders, ownerType) {
   link.innerText = `Download CSV for Token ID ${tokenId}`;
   link.classList.add('button');
   csvLinksContainer.appendChild(link);
-  const lineBreak = document.createElement('br');
-  csvLinksContainer.appendChild(lineBreak);
 
   // Hide the "Download Combined CSV" button & "Download All" button when processing a single token ID
   if (numTokenIdsProcessed === 1) {
@@ -222,6 +220,7 @@ tokenForm.addEventListener('submit', async (event) => {
   const submitButton = document.getElementById('submit-button');
   submitButton.disabled = true;
   const loader = document.createElement('div');
+  loader.className = 'loading-noggles';
   loader.innerText = 'Loading...';
   csvLinksContainer.appendChild(loader);
 

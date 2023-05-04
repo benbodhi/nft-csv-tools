@@ -21,32 +21,43 @@
 		<a href="voting-power-nouns.html" class="active">Nouner Power</a>
 	</nav>
 	<div class="intro">
-		<p>Export a list of wallets with voting power at Nouns DAO to a CSV file.<br>Additionally, you can download a "Vote Tracker CSV" with this data as well as extra columns to help with tracking proposal votes and rallying nouners for your proposal.</p>
+		<p>Export a list of wallets with voting power at Nouns DAO to a CSV file.<br>Additionally, you can download a
+			"Vote Tracker CSV" with this data as well as extra columns to help with tracking proposal votes and rallying
+			nouners for your proposal.</p>
 	</div>
 	<div id="progress-bar" class="progress-bar">
-		<div id="progress" class="progress-bar-inner" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+		<div id="progress" class="progress-bar-inner" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+			aria-valuemax="100" style="width: 0%;"></div>
 	</div>
 	<p id="progress-percentage" class="progress-percentage"></p>
 	<p id="progress-helper-text" class="text-muted" style="display: none;">Currently Refreshing Data</p>
 	<p id="random-text" class="text-muted" style="display: none;"></p>
+	<div class="page-loader">
+		<!-- <img src="noggles-loading.svg" alt="Loading..." /> -->
+		<div id="inline-noggles-loading"></div>
+	</div>
 	<main class="main">
-		<button id="download-csv-button" class="button">Download Data as CSV</button>
-		<button id="download-extended-csv-button" class="button">Download Vote Tracker CSV</button>
-		<div class="table-wrapper full-width">
+		<div class="main-content">
+			<div class="button-container">
+				<button id="download-csv-button" class="button">Download Data as CSV</button>
+				<button id="download-extended-csv-button" class="button">Download Vote Tracker CSV</button>
+			</div>
 			<button id="refresh-data-button" class="button">Refresh Data</button>
-			<p id="last-updated"></p>
-			<table id="voting-power-table">
-				<thead>
-					<tr>
-						<th id="header-address">Wallet</th>
-						<th id="header-ens-name">ENS Name</th>
-						<th id="header-voting-power">Voting Power</th>
-					</tr>
-				</thead>
-				<tbody id="voting-power-table-body">
-					<!-- The voting power data will be inserted here -->
-				</tbody>
-			</table>
+			<div class="table-wrapper full-width">
+				<p id="last-updated"></p>
+				<table id="voting-power-table">
+					<thead>
+						<tr>
+							<th id="header-address">Wallet</th>
+							<th id="header-ens-name">ENS Name</th>
+							<th id="header-voting-power">Voting Power</th>
+						</tr>
+					</thead>
+					<tbody id="voting-power-table-body">
+						<!-- The voting power data will be inserted here -->
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</main>
 	<footer class="footer">

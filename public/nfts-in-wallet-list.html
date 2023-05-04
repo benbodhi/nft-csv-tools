@@ -21,26 +21,32 @@
 		<a href="voting-power-nouns.html">Nouner Power</a>
 	</nav>
 	<div class="intro">
-		<p>This tool allows you to scan any Ethereum wallet address for NFTs.<br>It will export a CSV file with a list in the format ready for Safe's CSV Airdrop app, you just need to assign the receiver and how many tokens to send, which is always 1 for erc-721 tokens.<br>Additionally, it will also give you the option to save a reference file for each address so you know which token contract is which by name and how many total tokens of each contract are held.</p>
+		<p>This tool allows you to scan any Ethereum wallet address for NFTs.<br>It will export a CSV file with a list
+			in the format ready for Safe's CSV Airdrop app, you just need to assign the receiver and how many tokens to
+			send, which is always 1 for erc-721 tokens.<br>Additionally, it will also give you the option to save a
+			reference file for each address so you know which token contract is which by name and how many total tokens
+			of each contract are held.</p>
 		<ol>
 			<li>Enter the wallet address/es (one per line for multiple) in the first field.</li>
 			<li>Hit the "Export List of NFTs" button and wait.</li>
 			<li>Download your CSV files.</li>
 		</ol>
 	</div>
-	<main class="main">
-		<form id="nft-export-form" class="form">
-			<label for="wallet-addresses" class="form__label">Wallet Addresses (one per line):</label>
-			<div class="input-container">
-				<textarea id="wallet-addresses" class="form__input" rows="6" required></textarea>
-				<span class="clear-icon" title="Clear input">x</span>
-			</div>
-			<button type="submit" class="form__button button">Export List of NFTs</button>
-		</form>
-		<div id="output" class="output">
-			<h2 class="output__title">CSV Downloads</h2>
-			<div id="csv-links" class="output__links">
-				<!-- Download links will be generated here -->
+	<main class="main" id="page-nfts-in-wallet-list">
+		<div class="main-content">
+			<form id="nft-export-form" class="form">
+				<label for="wallet-addresses" class="form__label">Wallet Addresses (one per line):</label>
+				<div class="input-container">
+					<textarea id="wallet-addresses" class="form__input" rows="6" required></textarea>
+					<span class="clear-icon" title="Clear input">x</span>
+				</div>
+				<button type="submit" class="form__button button">Export List of NFTs</button>
+			</form>
+			<div id="output" class="output">
+				<h2 class="output__title">CSV Downloads</h2>
+				<div id="csv-links" class="output__links">
+					<!-- Download links will be generated here -->
+				</div>
 			</div>
 		</div>
 	</main>

@@ -121,15 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tokenReferenceLink.textContent = `Download Token Reference CSV for ${walletAddress}`;
       tokenReferenceLink.classList.add('button');
 
-      // Create a container element and append the download links to it
-      const div = document.createElement('div');
+      // Select csv-links container and append the download links to it
+      const div = document.getElementById('csv-links');
       div.appendChild(nftLink);
-      div.appendChild(document.createElement('br'));
       div.appendChild(tokenReferenceLink);
-
-      // Append the container to the CSV links container
-      csvLinksContainer.appendChild(div);
-      csvLinksContainer.appendChild(document.createElement('br'));
 
       // Log that the download links have been created for the wallet address
       console.log('Download links created for wallet address:', result.walletAddress);

@@ -36,73 +36,75 @@
 		</ol>
 		<p>Please note: only ERC-721 is supported for now</p>
 	</div>
-	<main class="main">
-		<form id="token-form" class="form">
-			<label for="contract-address" class="form__label contract-address">Contract Address</label>
-			<div class="input-container">
-				<input type="text" id="contract-address" class="form__input" placeholder="0x..." required>
-				<span class="clear-icon" title="Clear input">x</span>
-			</div>
-			<p class="form__description">Enter the token contract address to pull owners from 👆</p>
-
-			<fieldset class="form__fieldset">
-				<legend class="form__legend">Specify Token IDs</legend>
-				<p class="form__description">You can use any of these 3 optional fields to select specific IDs,
-					otherwise you can use the "Fetch All" option below</p>
-				<label for="token-ids" class="form__label">Token ID(s)</label>
+	<main class="main" id="page-nft-holders-list">
+		<div class="main-content">
+			<form id="token-form" class="form">
+				<label for="contract-address" class="form__label contract-address">Contract Address</label>
 				<div class="input-container">
-					<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
+					<input type="text" id="contract-address" class="form__input" placeholder="0x..." required>
 					<span class="clear-icon" title="Clear input">x</span>
 				</div>
-				<p class="form__description">Single token ID or comma-separated list</p>
+				<p class="form__description">Enter the token contract address to pull owners from 👆</p>
 
-				<label for="token-range" class="form__label">Token ID Range</label>
-				<div class="input-container">
-					<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
-					<span class="clear-icon" title="Clear input">x</span>
-				</div>
-				<p class="form__description">Two token IDs to get them and all between</p>
+				<fieldset class="form__fieldset">
+					<legend class="form__legend">Specify Token IDs</legend>
+					<p class="form__description">You can use any of these 3 optional fields to select specific IDs,
+						otherwise you can use the "Fetch All" option below</p>
+					<label for="token-ids" class="form__label">Token ID(s)</label>
+					<div class="input-container">
+						<input type="text" id="token-ids" class="form__input" placeholder="1,2,3..." disabled>
+						<span class="clear-icon" title="Clear input">x</span>
+					</div>
+					<p class="form__description">Single token ID or comma-separated list</p>
 
-				<label for="token-date-range" class="form__label">Date Range</label>
-				<div class="input-container">
-					<input type="text" id="token-date-range" class="form__input" placeholder="2022-01-01 to 2022-01-31"
-						disabled>
-					<span class="clear-icon" title="Clear input">x</span>
-				</div>
-				<p class="form__description">Select from and to dates (UTC), can be same day<br>(YYYY-MM-DD to YYYY-MM-DD)</p>
-			</fieldset>
+					<label for="token-range" class="form__label">Token ID Range</label>
+					<div class="input-container">
+						<input type="text" id="token-range" class="form__input" placeholder="123-234" disabled>
+						<span class="clear-icon" title="Clear input">x</span>
+					</div>
+					<p class="form__description">Two token IDs to get them and all between</p>
 
-			<fieldset class="form__fieldset">
-				<legend class="form__legend">Fetch All</legend>
-				<label for="fetch-all">
-					<input type="checkbox" id="fetch-all" name="fetch-all" />
-					Fetch all token IDs from this contract
-				</label>
-				<p class="form__description">If selected, you don't need to use the ID fields above</p>
-			</fieldset>
+					<label for="token-date-range" class="form__label">Date Range</label>
+					<div class="input-container">
+						<input type="text" id="token-date-range" class="form__input"
+							placeholder="2022-01-01 to 2022-01-31" disabled>
+						<span class="clear-icon" title="Clear input">x</span>
+					</div>
+					<p class="form__description">Select from and to dates (UTC), can be same day<br>(YYYY-MM-DD to
+						YYYY-MM-DD)</p>
+				</fieldset>
 
-			<fieldset class="form__fieldset">
-				<legend class="form__legend">Owner or OG Minter?</legend>
-				<input type="radio" id="owner-current" name="owner-type" value="current" checked>
-				<label for="owner-current">Current Owner</label>
-				<input type="radio" id="owner-original" name="owner-type" value="original">
-				<label for="owner-original">Original Minter</label>
-			</fieldset>
-			<button type="submit" id="submit-button" class="form__button button" disable>Fetch Token Holders</button>
-		</form>
-		<div id="output" class="output">
-			<h2 class="output__title">CSV Downloads</h2>
-			<div class="output__buttons output__buttons--half">
-				<div class="button-container">
-					<a id="download-combined" class="output__link button hidden">Download Combined CSV</a>
+				<fieldset class="form__fieldset">
+					<legend class="form__legend">Fetch All</legend>
+					<label for="fetch-all">
+						<input type="checkbox" id="fetch-all" name="fetch-all" />
+						Fetch all token IDs from this contract
+					</label>
+					<p class="form__description">If selected, you don't need to use the ID fields above</p>
+				</fieldset>
+
+				<fieldset class="form__fieldset">
+					<legend class="form__legend">Owner or OG Minter?</legend>
+					<input type="radio" id="owner-current" name="owner-type" value="current" checked>
+					<label for="owner-current">Current Owner</label>
+					<input type="radio" id="owner-original" name="owner-type" value="original">
+					<label for="owner-original">Original Minter</label>
+				</fieldset>
+				<button type="submit" id="submit-button" class="form__button button" disable>Fetch Token Holders</button>
+			</form>
+			<div id="output" class="output">
+				<h2 class="output__title">CSV Downloads</h2>
+				<div class="output__buttons output__buttons--half">
+					<div class="button-container">
+						<a id="download-combined" class="output__link button hidden">Download Combined CSV</a>
+					<!-- </div>
+					<div class="button-container"> -->
+						<a id="download-all" class="output__link button hidden" download="all_token_holders.zip">Download All CSVs</a>
+					</div>
 				</div>
-				<div class="button-container">
-					<a id="download-all" class="output__link button hidden" download="all_token_holders.zip">Download
-						All CSVs</a>
+				<div id="csv-links" class="output__links">
+					<!-- Download links will be generated here -->
 				</div>
-			</div>
-			<div id="csv-links" class="output__links">
-				<!-- Download links will be generated here -->
 			</div>
 		</div>
 	</main>

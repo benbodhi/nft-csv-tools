@@ -1,0 +1,84 @@
+
+<svg width="160" height="60" viewbox="0 0 160 60" xmlns="http://www.w3.org/2000/svg" shaperendering="crispEdges">
+  <g id="frame" fill="black">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M30 0H90V20H100V0H160V60H100V30H90V60H30V30H10V50H0V30V20H30V0Z"/>
+  </g>
+  <!-- state 1 -->
+  <g id="state-1" class="noggle-animation-state">
+    <path d="M150 10H140V20H150V10Z"/>
+    <path d="M150 20H140V30H150V20Z"/>
+    <path d="M150 30H140V40H150V30Z"/>
+    <path d="M140 10H130V20H140V10Z"/>
+    <path d="M130 10H120V20H130V10Z"/>
+    <path d="M50 10H80V40H70V20H50V10Z"/>
+  </g>
+  <!-- state 2 -->
+  <g id="state-2" class="noggle-animation-state">
+    <path d="M80 10H70V50H80V10Z"/>
+    <path d="M150 20H140V30H150V20Z"/>
+    <path d="M150 10H140V20H150V10Z"/>
+    <path d="M150 30H140V40H150V30Z"/>
+    <path d="M150 40H140V50H150V40Z"/>
+  </g>
+  <!-- state 3 -->
+  <g id="state-3" class="noggle-animation-state">
+    <path d="M150 30H140V40H150V30Z"/>
+    <path d="M150 40H120V50H150V40Z"/>
+    <path d="M70 30H80V50H50V40H70V30Z"/>
+  </g>
+  <!-- state 4 -->
+  <g id="state-4" class="noggle-animation-state">
+    <path d="M150 40H110V50H150V40Z"/>
+    <path d="M80 40H40V50H80V40Z"/>
+  </g>
+  <!-- state 5 -->
+  <g id="state-5" class="noggle-animation-state">
+    <path d="M120 20H110V30H120V20Z"/>
+    <path d="M120 30H110V40H120V30Z"/>
+    <path d="M140 40H110V50H140V40Z"/>
+    <path d="M50 20H40V50H70V40H50V20Z"/>
+  </g>
+  <!-- state 6 -->
+  <g id="state-6" class="noggle-animation-state">
+    <path d="M50 10H40V50H50V10Z"/>
+    <path d="M120 20H110V30H120V20Z"/>
+    <path d="M120 10H110V20H120V10Z"/>
+    <path d="M120 30H110V40H120V30Z"/>
+    <path d="M120 40H110V50H120V40Z"/>
+  </g>
+  <!-- state 7 -->
+  <g id="state-7" class="noggle-animation-state">
+    <path d="M120 40H110V30H120V40Z"/>
+    <path d="M120 30H110V20H120V30Z"/>
+    <path d="M140 20H110V10H140V20Z"/>
+    <path d="M50 40H40V10H70V20H50V40Z"/>
+  </g>
+  <!-- state 8 -->
+  <g id="state-8" class="noggle-animation-state">
+    <path d="M150 10H110V20H150V10Z"/>
+    <path d="M80 10H40V20H80V10Z"/>
+  </g>
+  <style>
+    .noggle-animation-state {
+      fill: white;
+      display: none
+    }
+    #state-8 {
+      display: block
+    }
+  </style>
+  <script>
+    const states = document.getElementsByClassName("noggle-animation-state")
+    const total = states.length
+    let currentId = 1
+    setInterval(() => {
+      if (currentId === total) currentId = 1
+      else currentId++
+      for (const state of states) {
+        const id = Number(state.id.slice(6))
+        if (id === currentId) state.style.display = 'block'
+        else state.style.display = 'none'
+      }
+    }, 100);
+  </script>
+</svg>
