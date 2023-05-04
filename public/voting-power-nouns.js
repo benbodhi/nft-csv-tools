@@ -6,8 +6,6 @@ let loaderTextInterval;
 
 // Set up a socket event listener for 'progress' events
 socket.on('progress', (progress) => {
-  // Log the progress received from the server
-  console.log('Received progress:', progress);
 
   // Get a reference to the progress bar element
   const progressBar = document.getElementById('progress');
@@ -24,9 +22,6 @@ socket.on('progress', (progress) => {
 
 // Set up a socket event listener for 'refreshingDataStatus' events
 socket.on('refreshingDataStatus', (isRefreshing) => {
-  // Log the received data refresh status
-  console.log('Received data refresh status:', isRefreshing);
-
   // Update the refreshing data state based on the received status
   setRefreshingDataState(isRefreshing);
 });
@@ -78,7 +73,7 @@ async function loadInlineSVG() {
   const response = await fetch('noggles-loading.svg');
   const svgContent = await response.text();
 
-  document.getElementById('inline-noggles-loading').innerHTML = svgContent;
+  document.getElementById('noggles-loading').innerHTML = svgContent;
 
   // animate the SVG
   animateNogglesLoading();
@@ -107,10 +102,6 @@ async function fetchData() {
   // Send a GET request to the server to fetch the voting power data
   const response = await fetch('/api/voting-power-data');
   const { data, lastRun } = await response.json();
-
-  // Add logs to check the received data and lastRun values
-  // console.log('Received data:', data);
-  // console.log('Received lastRun:', lastRun);
 
   // Update the table with the fetched data
   refreshTableData(data);
@@ -376,8 +367,6 @@ document.getElementById('download-csv-button').addEventListener('click', async (
 
   // Sort the data by voting power descending
   const sortedData = data.sort((a, b) => b.votingPower - a.votingPower);
-
-  // console.log('Data used for CSV:', data);
 
   // Convert the data to CSV format
   const csvData = data.map(({ address, ensName, votingPower }) => `${address},${ensName || ''},${votingPower}`).join('\n');

@@ -380,6 +380,7 @@ button#download-extended-csv-button {
 	font-size: 1.1rem;
 	font-weight: bold;
 	margin-top: 0;
+	text-align: center;
 }
 
 .output__links {
@@ -518,11 +519,13 @@ p#last-updated {
 	z-index: 1000;
 }
 
-.page-loader #frame {
+.page-loader #frame,
+#noggles-loading #frame {
 	fill: #2c3e50;
 }
 
-.page-loader .noggle-animation-state {
+.page-loader .noggle-animation-state,
+#noggles-loading .noggle-animation-state {
 	fill: lawngreen;
 	display: none;
 }
@@ -531,7 +534,8 @@ p#last-updated {
 	display: block;
 }
 
-.loading-noggles {
+.loading-noggles,
+#noggles-loading {
 	text-align: center;
 }
 

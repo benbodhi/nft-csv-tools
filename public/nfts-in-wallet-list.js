@@ -1,11 +1,8 @@
-// Get reference to the CSV links container
-const csvLinksContainer = document.getElementById('csv-links');
-
 // When the DOM content is loaded, execute this function
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Log that the DOM content has loaded
-  console.log('DOM content loaded');
+  // Get reference to the CSV links container
+  const csvLinksContainer = document.getElementById('csv-links');
 
   // Get references to various elements
   const form = document.getElementById('nft-export-form');
@@ -26,43 +23,66 @@ document.addEventListener('DOMContentLoaded', () => {
     'Patience is the key',
   ];
 
-  // Function to update the loader text with a random loading message
-  function updateLoaderText(loader) {
-    const randomIndex = Math.floor(Math.random() * loaderTextOptions.length);
-    const randomText = loaderTextOptions[randomIndex];
-    loader.innerHTML = `Loading...<br>${randomText}`;
+  // Load noggles loader svg inline
+  async function loadInlineSVG() {
+    const response = await fetch('noggles-loading.svg');
+    const svgContent = await response.text();
+
+    document.getElementById('noggles-loading').innerHTML = svgContent;
+
+    // animate the SVG
+    animateNogglesLoading();
+  }
+
+  // Declare a variable to store the interval ID
+  let animationInterval;
+
+  // Animation for noggles loading SVG
+  async function animateNogglesLoading() {
+
+    // Clear any existing interval
+    if (animationInterval) {
+      clearInterval(animationInterval);
+    }
+
+    const states = document.getElementsByClassName('noggle-animation-state')
+    const total = states.length
+    let currentId = 1
+    animationInterval = setInterval(() => {
+      if (currentId === total) currentId = 1
+      else currentId++
+      for (const state of states) {
+        const id = Number(state.id.slice(6))
+        if (id === currentId) state.style.display = 'block'
+        else state.style.display = 'none'
+      }
+    }, 100);
   }
 
   // When the form is submitted, execute this function
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    // Log that the form has been submitted
-    console.log('Form submitted');
-
     // Get an array of trimmed wallet addresses from the textarea
     const walletAddresses = walletAddressesTextarea.value.split('\n').map(address => address.trim()).filter(address => address.length > 0);
 
     // If no wallet addresses are entered, alert the user and return
     if (walletAddresses.length === 0) {
-      console.log('No wallet addresses entered');
       alert('Please enter at least one wallet address.');
       return;
     }
 
     // Create loader element and add it to downloadLinksDiv
     const loader = document.createElement('div');
-    loader.innerText = 'Loading...';
     downloadLinksDiv.innerHTML = '';
     downloadLinksDiv.appendChild(loader);
 
-    // Update loader text initially and start the interval
-    updateLoaderText(loader);
-    const loaderTextInterval = setInterval(() => updateLoaderText(loader), 3000);
+    // Add inline SVG and start the animation
+    loader.innerHTML = `<div id="noggles-loading"></div>`;
+    loadInlineSVG();
 
     try {
       // Send a request to the server to export NFT data for the given wallet addresses
-      console.log('Sending request to /export-nfts');
       const response = await fetch('/export-nfts', {
         method: 'POST',
         headers: {
@@ -73,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // If the response is successful, display the download links
       if (response.ok) {
-        console.log('Response OK');
         const results = await response.json();
         displayDownloadLinks(results);
       } else {
@@ -81,23 +100,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (error) {
       // If an error occurs, log it and alert the user
-      console.log('Error occurred:', error);
       alert(`Error: ${error.message}`);
     } finally {
-      // Remove loader and clear the interval
+      // Remove loader
       loader.remove();
-      clearInterval(loaderTextInterval);
     }
   });
 
   // Function to display the download links for the exported data
   function displayDownloadLinks(results) {
-    console.log('Results:', results);
 
     csvLinksContainer.innerHTML = '';
 
     results.forEach(result => {
-      console.log(`Creating download links for wallet address: ${result.walletAddress}`);
 
       // Extract the data and create blobs
       const walletAddress = result.walletAddress;
@@ -125,16 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const div = document.getElementById('csv-links');
       div.appendChild(nftLink);
       div.appendChild(tokenReferenceLink);
-
-      // Log that the download links have been created for the wallet address
-      console.log('Download links created for wallet address:', result.walletAddress);
     });
-
-    // Log the CSV links container
-    console.log('Download Links Div:', csvLinksContainer);
 
     // Display the CSV links container
     csvLinksContainer.style.display = 'block';
   }
-
 });
