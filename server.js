@@ -134,12 +134,12 @@ app.post('/fetch-token-holders', async (req, res) => {
     }
   }
 
-  console.log('Fetching token holders for:', {
-    contractAddress,
-    dateRange: [tokenDateStart, tokenDateEnd],
-    tokenIds: tokenIdsToFetch,
-    ownerType
-  });
+  // console.log('Fetching token holders for:', {
+  //   contractAddress,
+  //   dateRange: [tokenDateStart, tokenDateEnd],
+  //   tokenIds: tokenIdsToFetch,
+  //   ownerType
+  // });
 
   const allHolders = new Map();
 
@@ -150,7 +150,7 @@ app.post('/fetch-token-holders', async (req, res) => {
 
     const holders = new Map();
 
-    console.log(`Token ID ${tokenId} transfers:`, transfers);
+    // console.log(`Token ID ${tokenId} transfers:`, transfers);
 
     for (const tx of transfers) {
       const isMintTransaction = tx.from === '0x0000000000000000000000000000000000000000';
@@ -159,22 +159,22 @@ app.post('/fetch-token-holders', async (req, res) => {
         continue;
       }
 
-      console.log(`Token ID ${tokenId} transfer from ${tx.from} to ${tx.to}`);
+      // console.log(`Token ID ${tokenId} transfer from ${tx.from} to ${tx.to}`);
 
       if (ownerType === 'current') {
         if (isMintTransaction) {
           holders.set(tx.to, tokenId);
-          console.log(`(1) Setting holder (original minter) ${tx.to} for Token ID ${tokenId}`);
+          // console.log(`(1) Setting holder (original minter) ${tx.to} for Token ID ${tokenId}`);
         } else {
           holders.delete(tx.from);
-          console.log(`Removing Previous Holder ${tx.from} for Token ID ${tokenId}`);
+          // console.log(`Removing Previous Holder ${tx.from} for Token ID ${tokenId}`);
           holders.set(tx.to, tokenId);
-          console.log(`(2) Setting holder (new owner) ${tx.to} for Token ID ${tokenId}`);
+          // console.log(`(2) Setting holder (new owner) ${tx.to} for Token ID ${tokenId}`);
         }
       } else {
         if (isMintTransaction) {
           holders.set(tx.to, tokenId);
-          console.log(`(3) Setting holder (original minter) ${tx.to} for Token ID ${tokenId}`);
+          // console.log(`(3) Setting holder (original minter) ${tx.to} for Token ID ${tokenId}`);
         }
       }
     }
@@ -266,7 +266,7 @@ app.post('/export-nfts', async (req, res) => {
   const results = [];
 
   for (const walletAddress of walletAddresses) {
-    console.log(`Fetching NFTs for wallet address: ${walletAddress}`);
+    // console.log(`Fetching NFTs for wallet address: ${walletAddress}`);
     const nfts = await fetch_nfts(walletAddress, apiKey);
     const nftCSV = nftsToCSV(nfts);
     const tokenReferenceCSV = nftsToCSV(nfts, true);
@@ -397,7 +397,7 @@ async function saveVotingPowerData(votingPowerData) {
     { upsert: true }
   );
 
-  console.log('Voting power data saved to MongoDB');
+  // console.log('Voting power data saved to MongoDB');
   io.sockets.emit('dataRefreshed');
 }
 
@@ -459,7 +459,7 @@ const fetchVotingPowerData = async (io) => {
     // Convert the votingPowerMap to an array of objects
     const votingPowerDataPromises = Array.from(votingPowerMap.entries()).map(async ([address, votingPower]) => {
       const ensName = await resolveName(address);
-      console.log(`Processing ENS name for address ${address}: ${ensName}`);
+      // console.log(`Processing ENS name for address ${address}: ${ensName}`);
       return {
         address,
         votingPower,
@@ -491,21 +491,6 @@ app.get('/api/voting-power', async (req, res) => {
   res.json(fetchedData);
 });
 
-// Download voting power data endpoint
-// app.get('/api/voting-power/download', async (req, res) => {
-//   if (!fetchedData.length) {
-//     fetchedData = await fetchVotingPowerData(io);
-//   }
-//   const fields = ['address', 'ensName', 'votingPower'];
-//   const opts = { fields };
-//   const parser = new Parser(opts);
-//   const csv = parser.parse(fetchedData);
-
-//   res.header('Content-Type', 'text/csv');
-//   res.attachment('nouner-power.csv');
-//   res.send(csv);
-// });
-
 app.get('/api/voting-power/refresh-status', (req, res) => {
   res.json({ isRefreshing: isRefreshingData });
 });
@@ -522,19 +507,4 @@ app.post('/api/voting-power/refresh', async (req, res) => {
 
   fetchedData = await fetchVotingPowerData(io);
   res.json({ message: 'Data refreshed successfully.' });
-});
-
-// Debugging endpoint - remove later
-app.get('/api/debug/resolve-name', async (req, res) => {
-  const { address } = req.query;
-  if (!address) {
-    return res.status(400).json({ message: 'Address is required' });
-  }
-
-  try {
-    const resolvedName = await resolveName(address);
-    res.json({ resolvedName });
-  } catch (error) {
-    res.status(500).json({ message: 'Error resolving name', error });
-  }
 });
