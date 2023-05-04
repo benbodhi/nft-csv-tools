@@ -279,16 +279,16 @@ app.post('/export-nfts', async (req, res) => {
 /**
  * Nouns Voting Power
  */
-// Resolve ENS names using addresses
-async function resolveENSName(address) {
+// Resolve NNS/ENS names using addresses
+async function resolveName(address) {
   try {
-    // Create a new instance of the Web3 library and set the provider URL to Infura
     const providerUrl = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
     const web3 = new Web3(providerUrl);
 
-    // Define the ENS registry address and ABI
+    const nnsRegistryAddress = '0x3e1970dc478991b49c4327973ea8a4862ef5a4de'; // NNS registry address
     const ensRegistryAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'; // ENS registry address on Ethereum mainnet
-    const ensABI = [
+
+    const registryABI = [
       {
         constant: true,
         inputs: [{ name: 'node', type: 'bytes32' }],
@@ -300,61 +300,59 @@ async function resolveENSName(address) {
       }
     ];
 
-    // Create a new instance of the ENS registry contract
-    const ensRegistryContract = new web3.eth.Contract(ensABI, ensRegistryAddress);
-
-    // Compute the reverse ENS name and the corresponding node hash
-    const reverseENSName = address.slice(2).toLowerCase() + '.addr.reverse';
-    const node = namehash.hash(reverseENSName);
-    console.log(`ENS node for address ${address}: ${node}`);
-
-    // Get the resolver address for the ENS node hash
-    const resolverAddress = await ensRegistryContract.methods.resolver(node).call();
-    console.log(`Resolver address for ENS node ${node}: ${resolverAddress}`);
-
-    // Check if the resolver address is not set and return null if it is not set
-    if (resolverAddress === '0x0000000000000000000000000000000000000000') {
-      console.log(`No resolver found for ENS node ${node}`);
-      return null;
-    }
-
-    // Define the resolver ABI and create a new instance of the resolver contract
     const resolverABI = [
       {
         constant: true,
         inputs: [{ name: 'node', type: 'bytes32' }],
         name: 'name',
-        outputs: [{ name: 'ensName', type: 'string' }],
+        outputs: [{ name: 'resolvedName', type: 'string' }],
         payable: false,
         stateMutability: 'view',
         type: 'function'
       }
     ];
-    const resolverContract = new web3.eth.Contract(resolverABI, resolverAddress);
 
-    // Get the ENS name for the reverse ENS node hash
-    const ensName = await resolverContract.methods.name(node).call();
-    console.log(`Processing ENS name for address ${address}: ${ensName}`);
+    const reverseName = address.slice(2).toLowerCase() + '.addr.reverse';
+    const node = namehash.hash(reverseName);
 
-    // Check if the ENS name is properly set for the reverse record
-    if (!ensName || ensName === '' || ensName.endsWith('.addr.reverse')) {
-      console.log(`Invalid ENS name for address ${address}: ${ensName}`);
-      return null;
+    // Try resolving the name using NNS first
+    const nnsRegistryContract = new web3.eth.Contract(registryABI, nnsRegistryAddress);
+    const nnsResolverAddress = await nnsRegistryContract.methods.resolver(node).call();
+
+    if (nnsResolverAddress !== '0x0000000000000000000000000000000000000000') {
+      const nnsResolverContract = new web3.eth.Contract(resolverABI, nnsResolverAddress);
+      const nnsName = await nnsResolverContract.methods.name(node).call();
+      if (isValidName(nnsName)) {
+        return nnsName;
+      }
     }
 
-    // Check if the ENS name is set to zero address and return null if it is
-    if (ensName === '0x0000000000000000000000000000000000000000') {
-      console.log(`ENS name returned ${ensName}`);
-      return null;
+    // Fall back to ENS if NNS name is not found or not valid
+    const ensRegistryContract = new web3.eth.Contract(registryABI, ensRegistryAddress);
+    const ensResolverAddress = await ensRegistryContract.methods.resolver(node).call();
+
+    if (ensResolverAddress !== '0x0000000000000000000000000000000000000000') {
+      const ensResolverContract = new web3.eth.Contract(resolverABI, ensResolverAddress);
+      const ensName = await ensResolverContract.methods.name(node).call();
+      if (isValidName(ensName)) {
+        return ensName;
+      }
     }
 
-    // Return the resolved ENS name
-    return ensName;
+    return null;
   } catch (error) {
-    // Log an error message and return null if there is an error resolving the ENS name
-    console.error(`Error resolving ENS name for address: ${address}`);
+    console.error(`Error resolving name for address: ${address}`);
     return null;
   }
+}
+
+function isValidName(name) {
+  return (
+    name &&
+    name !== '' &&
+    !name.endsWith('.addr.reverse') &&
+    name !== '0x0000000000000000000000000000000000000000'
+  );
 }
 
 // Get voting power data from the database
@@ -460,7 +458,7 @@ const fetchVotingPowerData = async (io) => {
 
     // Convert the votingPowerMap to an array of objects
     const votingPowerDataPromises = Array.from(votingPowerMap.entries()).map(async ([address, votingPower]) => {
-      const ensName = await resolveENSName(address);
+      const ensName = await resolveName(address);
       console.log(`Processing ENS name for address ${address}: ${ensName}`);
       return {
         address,
@@ -524,4 +522,19 @@ app.post('/api/voting-power/refresh', async (req, res) => {
 
   fetchedData = await fetchVotingPowerData(io);
   res.json({ message: 'Data refreshed successfully.' });
+});
+
+// Debugging endpoint - remove later
+app.get('/api/debug/resolve-name', async (req, res) => {
+  const { address } = req.query;
+  if (!address) {
+    return res.status(400).json({ message: 'Address is required' });
+  }
+
+  try {
+    const resolvedName = await resolveName(address);
+    res.json({ resolvedName });
+  } catch (error) {
+    res.status(500).json({ message: 'Error resolving name', error });
+  }
 });
