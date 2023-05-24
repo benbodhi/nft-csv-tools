@@ -17,6 +17,7 @@ See it in action at: [https://nftcsv.tools](https://nftcsv.tools)
 ## Usage
 
 ### Visit The Website
+
 [https://nftcsv.tools](https://nftcsv.tools)
 
 ### Token Holder/Minter Extractor
@@ -47,22 +48,26 @@ To get the project running locally on your machine, follow these steps:
 1. **Fork the repository**: Fork this repository to your own GitHub account using the GitHub website or GitHub Desktop.
 
 2. **Clone the repository**: After you've forked the repository, clone it to your local machine. Replace `<YourUsername>` with your GitHub username.
+
     ```bash
     git clone https://github.com/<YourUsername>/nft-csv-tools.git
     ```
 
 3. **Install the project dependencies**: Navigate to the project directory and install the dependencies.
+
     ```bash
     cd nft-csv-tools
     npm install
     ```
 
 4. **Start the server**: Use the following command to start the server.
+
     ```bash
     node server.js
     ```
 
 5. **Switch to Node.js version 16** (optional): The project *may* face issues on Node.js version 17. If you face any issues using version 17, it's advised to switch to version 16 and restart the server.
+
     ```bash
     nvm use 16
     node server.js
