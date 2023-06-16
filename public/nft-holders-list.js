@@ -160,6 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Increment the number of token IDs processed
     numTokenIdsProcessed++;
 
+    // console.log(`Processing token ID ${tokenId}. Number of token IDs processed so far: ${numTokenIdsProcessed}`);
+
     const csvContent = `data:text/csv;charset=utf-8,${holders.map(([h, value]) => `${h}`).join('\n')}`;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -210,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle token form submission
   tokenForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    // console.log('Form submitted');
 
     numTokenIdsProcessed = 0;
 
@@ -271,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get the fetchAll value
     const fetchAll = fetchAllCheckbox.checked;
+    // console.log(`fetchAll option selected: ${fetchAll}`);
 
     // Create loader element and add it to downloadLinksDiv
     const loader = document.createElement('div');
@@ -281,6 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loader.innerHTML = `<div id="noggles-loading"></div>`;
     loadInlineSVG();
 
+    // Before sending the request
+    // console.log('Sending request to /fetch-token-holders. This may take a while...');
+
     // Update the POST request body to include the "fetchAll" flag
     const response = await fetch('/fetch-token-holders', {
       method: 'POST',
@@ -290,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({ contractAddress, tokenIds, tokenRange, tokenDateStart, tokenDateEnd, combined, ownerType, fetchAll })
     });
 
+    // After receiving the response
+    // console.log('Received response from /fetch-token-holders');
+
     const tokenHolders = await response.json();
 
     csvLinksContainer.innerHTML = '';
@@ -297,9 +307,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const csvLinks = [];
     tokenHolders.forEach(({ tokenId, holders }) => {
+      // console.log(`Processing token ID ${tokenId}`);
       const link = createCSV(tokenId, holders, ownerType);
       csvLinks.push(link);
     });
+
+    // console.log('All token IDs processed');
 
     // Show the "Download Combined CSV" button and "Download All" button only if more than one token holder
     if (tokenHolders.length > 1) {
@@ -314,12 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Download all CSVs in a ZIP file
   downloadAllLink.addEventListener('click', async (event) => {
     event.preventDefault();
+    // console.log('Download all link clicked');
 
     const zip = new JSZip();
 
     // Add all individual CSV files
     const allLinks = Array.from(csvLinksContainer.querySelectorAll('a'));
     for (const link of allLinks) {
+      // console.log(`Processing link ${link.href}`);
       const response = await fetch(link.href);
       const text = await response.text();
       const filename = link.getAttribute('download');
@@ -355,6 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
     tempLink.click();
     document.body.removeChild(tempLink);
     setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+
+    // console.log('ZIP file generated and download initiated');
   });
 
 });

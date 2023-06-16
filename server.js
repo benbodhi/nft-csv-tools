@@ -110,6 +110,9 @@ async function fetchAllTokenIds(contractAddress, apiKey) {
 
 // Fetch token holders endpoint
 app.post('/fetch-token-holders', async (req, res) => {
+  // console.log('Fetch-token-holders endpoint hit');
+  // console.time('totalFetchTokenHolders');
+
   const { contractAddress, tokenIds, tokenRange, tokenDateStart, tokenDateEnd, combined, ownerType, fetchAll } = req.body;
   const apiKey = process.env.ETHERSCAN_API_KEY;
   const web3 = new Web3();
@@ -117,6 +120,7 @@ app.post('/fetch-token-holders', async (req, res) => {
 
   let tokenIdsToFetch = tokenIds || [];
 
+  // console.time('fetchTokenIds');
   if (fetchAll) {
     tokenIdsToFetch = await fetchAllTokenIds(contractAddress, apiKey);
   } else {
@@ -133,6 +137,7 @@ app.post('/fetch-token-holders', async (req, res) => {
       tokenIdsToFetch = tokenIdsToFetch.concat(rangeIds);
     }
   }
+  // console.timeEnd('fetchTokenIds');
 
   // console.log('Fetching token holders for:', {
   //   contractAddress,
@@ -143,9 +148,17 @@ app.post('/fetch-token-holders', async (req, res) => {
 
   const allHolders = new Map();
 
+  // console.time('fetchHolders');
+
   for (const tokenId of tokenIdsToFetch) {
     const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${contractAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}&tokenId=${tokenId}`;
+
+    const start = Date.now();
     const response = await axios.get(url);
+    const duration = Date.now() - start;
+
+    console.log(`Call to Etherscan API for token ID ${tokenId} took ${duration} ms`);
+
     const transfers = response.data.result.filter(tx => parseInt(tx.tokenID) === parseInt(tokenId));
 
     const holders = new Map();
@@ -192,6 +205,9 @@ app.post('/fetch-token-holders', async (req, res) => {
       tokenHolders.push({ tokenId, holders: Array.from(holders.entries()) });
     }
   }
+  // console.timeEnd('fetchHolders');
+
+  // console.timeEnd('totalFetchTokenHolders');
 
   if (combined) {
     res.json([{ tokenId: 'combined', holders: Array.from(allHolders.entries()) }]);
