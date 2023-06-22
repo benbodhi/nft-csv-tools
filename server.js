@@ -219,6 +219,39 @@ app.post('/fetch-token-holders', async (req, res) => {
 /**
  * NFTs in Wallet
  */
+// Fetch NFTs for a wallet address
+async function fetch_nfts(walletAddress, apiKey) {
+  const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${walletAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
+  const response = await axios.get(url);
+
+  if (response.status === 200) {
+    const allNfts = response.data.result;
+
+    const ownedNftsMap = new Map();
+
+    // Iterate over all NFT transactions
+    for (const nft of allNfts) {
+      const key = `${nft.contractAddress}-${nft.tokenID}`;
+
+      if (nft.to.toLowerCase() === walletAddress.toLowerCase()) {
+        // If the NFT was transferred to the wallet, add it to the map
+        ownedNftsMap.set(key, nft);
+      } else if (nft.from.toLowerCase() === walletAddress.toLowerCase()) {
+        // If the NFT was transferred from the wallet, remove it from the map
+        ownedNftsMap.delete(key);
+      }
+    }
+
+    const ownedNfts = Array.from(ownedNftsMap.values());
+
+    console.log(`Fetched ${ownedNfts.length} NFTs for wallet address: ${walletAddress}`);
+
+    return ownedNfts;
+  } else {
+    throw new Error(`Error fetching NFTs: ${response.status}, ${response.statusText}`);
+  }
+}
+
 // Export CSV of NFTs held by wallet
 function nftsToCSV(nfts, tokenReference = false) {
   const fieldnames = tokenReference
@@ -259,18 +292,6 @@ function nftsToCSV(nfts, tokenReference = false) {
     return headers + tokenRows;
   } else {
     return headers + rows;
-  }
-}
-
-// Fetch NFTs for a wallet address
-async function fetch_nfts(walletAddress, apiKey) {
-  const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${walletAddress}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
-  const response = await axios.get(url);
-
-  if (response.status === 200) {
-    return response.data.result;
-  } else {
-    throw new Error(`Error fetching NFTs: ${response.status}, ${response.statusText}`);
   }
 }
 
